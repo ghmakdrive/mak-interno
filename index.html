@@ -46,7 +46,7 @@ html,body{min-height:100%;font-family:'Plus Jakarta Sans',sans-serif;background:
 .delay-3{transition-delay:.9s!important;}
 .delay-4{transition-delay:1.2s!important;}
 @media(max-width:1024px){
-  .scroll-bottom,.scroll-top,.scroll-left,.scroll-right{filter:blur(0)!important;transition:opacity .8s,transform .8s!important;transform:translate(0,40px) scale(1)!important;}
+  .scroll-bottom,.scroll-top,.scroll-left,.scroll-right{filter:blur(0)!important;transition:opacity .8s,transform .8s!important;transform:translate(0,40px) scale(1);}
   .delay-1,.delay-2,.delay-3,.delay-4{transition-delay:0s!important;}
 }
 /* ── LAYOUT ─────────────────────────────────────────── */
@@ -72,12 +72,13 @@ html,body{min-height:100%;font-family:'Plus Jakarta Sans',sans-serif;background:
 .theme-btn:hover{background:var(--bg3);color:var(--text);}
 /* ── HERO ────────────────────────────────────────────── */
 .hero{padding:64px 0 48px;}
+.hero .page-wrap { display: flex; align-items: center; justify-content: center; }
 .hero-tag{
   display:inline-flex;align-items:center;gap:8px;
   padding:5px 13px;border-radius:40px;
   border:1px solid var(--border2);background:var(--bg3);
   font-size:11px;font-weight:700;color:var(--accent-2);
-  text-transform:uppercase;letter-spacing:.8px;margin-bottom:22px;
+  text-transform:uppercase;letter-spacing:.8px;
 }
 .hero-tag-dot{width:6px;height:6px;border-radius:50%;background:var(--accent-2);}
 .hero-title{
@@ -96,6 +97,7 @@ html,body{min-height:100%;font-family:'Plus Jakarta Sans',sans-serif;background:
 }
 /* ── FILTROS ─────────────────────────────────────────── */
 .filter-section{padding:0 0 32px;}
+.filter-section .page-wrap { display: flex; flex-direction: column; align-items: center; }
 .filter-bar{
   display:flex;align-items:center;gap:6px;
   background:var(--bg3);border:1px solid var(--border);
@@ -120,16 +122,16 @@ html,body{min-height:100%;font-family:'Plus Jakarta Sans',sans-serif;background:
 .filter-btn:not(.active) .fb-count{background:var(--bg4);color:var(--text3);}
 /* ── CATEGORY BLOCK ──────────────────────────────────── */
 .cat-block{display:none;}
-.cat-block.visible{display:block;}
+.cat-block.visible{display:flex; flex-direction: column; align-items: center; width: 100%;}
 .cat-section-label{
   font-size:11px;font-weight:700;color:var(--text3);
-  text-transform:uppercase;letter-spacing:.8px;margin-bottom:20px;
+  text-transform:uppercase;letter-spacing:.8px;margin-bottom:20px; text-align: center;
 }
 /* ── PROCESS GRID ────────────────────────────────────── */
 .proc-grid{
   display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
-  gap:14px;margin-bottom:64px;
+  grid-template-columns:repeat(auto-fill,minmax(320px,1fr));
+  gap:14px;margin-bottom:64px; width: 100%;
 }
 /* ── PROCESS CARD ────────────────────────────────────── */
 .proc-card{
@@ -165,7 +167,6 @@ html,body{min-height:100%;font-family:'Plus Jakarta Sans',sans-serif;background:
   white-space:nowrap;
 }
 .pc-title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:7px;line-height:1.3;}
-.pc-desc{font-size:12.5px;color:var(--text2);line-height:1.6;margin-bottom:18px;}
 .pc-meta{display:flex;align-items:center;gap:12px;}
 .pc-stat{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--text3);}
 .pc-open{
@@ -233,6 +234,7 @@ html,body{min-height:100%;font-family:'Plus Jakarta Sans',sans-serif;background:
 }
 .popup-close:hover{background:var(--bg4);color:var(--text);}
 .popup-body{overflow-y:auto;flex:1;padding:28px;}
+@media(max-width: 1020px) { .popup-body {padding:20px;} }
 .popup-body::-webkit-scrollbar{width:4px;}
 .popup-body::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
 /* ── REGRAS GERAIS BOX ───────────────────────────────── */
@@ -248,7 +250,7 @@ html,body{min-height:100%;font-family:'Plus Jakarta Sans',sans-serif;background:
 .gb-rules-item:last-child{margin-bottom:0;}
 .gb-rules-dot{width:6px;height:6px;border-radius:50%;background:var(--accent-2);flex-shrink:0;margin-top:7px;}
 /* ── STEPS ───────────────────────────────────────────── */
-.gb-divider{display:flex;align-items:center;gap:10px;margin:28px 0 18px;}
+.gb-divider{display:flex;align-items:center;gap:10px;margin:20px 0px !important;}
 .gb-divider-line{flex:1;height:1px;background:var(--border);}
 .gb-divider-label{font-size:11.5px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;white-space:nowrap;}
 .gb-step{border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:12px;}
@@ -264,7 +266,8 @@ html,body{min-height:100%;font-family:'Plus Jakarta Sans',sans-serif;background:
   font-size:11px;font-weight:800;color:var(--accent-2);flex-shrink:0;
 }
 .gb-step-title{font-size:15px;font-weight:700;color:var(--text);}
-.gb-step-body{padding:18px 20px;}
+.gb-step-body{padding:30px 26px;}
+@media(max-width: 1020px) { .gb-step-body { padding: 26px 22px; } }
 .gb-step-desc{font-size:14px;color:var(--text2);line-height:1.75;}
 .gb-step-desc strong{color:var(--text);font-weight:700;}
 /* ── LIST IN STEP ────────────────────────────────────── */
@@ -277,16 +280,16 @@ html,body{min-height:100%;font-family:'Plus Jakarta Sans',sans-serif;background:
 /* ── TOOL LINK ───────────────────────────────────────── */
 .gb-tool-link{
   display:inline-flex;align-items:center;gap:6px;
-  padding:7px 14px;border-radius:8px;
+  padding:12px 20px;border-radius:8px;
   background:var(--bg3);border:1px solid var(--border2);
   font-size:13px;font-weight:600;color:var(--accent-2);
-  text-decoration:none;transition:all .2s;margin-top:10px;
+  text-decoration:none;transition:all .2s;margin-top:20px !important;
 }
 .gb-tool-link:hover{background:var(--accent-glow);border-color:rgba(110,104,228,.3);}
 /* ── PROMPT BOX ──────────────────────────────────────── */
 .prompt-box{
   background:var(--bg3);border-radius:12px;border:1px solid var(--border);
-  overflow:hidden;margin-top:13px;
+  overflow:hidden;margin-top:20px;
 }
 .prompt-box-label{
   display:flex;align-items:center;justify-content:space-between;
@@ -309,9 +312,9 @@ html,body{min-height:100%;font-family:'Plus Jakarta Sans',sans-serif;background:
 }
 /* ── OBS ─────────────────────────────────────────────── */
 .gb-obs{
-  display:flex;gap:11px;align-items:flex-start;
+  display:flex;gap:11px;align-items:center;
   padding:13px 16px;border-radius:10px;
-  background:rgba(110,104,228,.06);border:1px solid rgba(110,104,228,.15);margin-top:12px;
+  background:rgba(110,104,228,.06);border:1px solid rgba(110,104,228,.15);margin-top:20px !important;
 }
 .gb-obs svg{color:var(--accent-2);flex-shrink:0;margin-top:2px;}
 .gb-obs-text{font-size:13.5px;color:var(--text2);line-height:1.65;}
@@ -319,20 +322,14 @@ html,body{min-height:100%;font-family:'Plus Jakarta Sans',sans-serif;background:
 /* ── NAMING BOX ──────────────────────────────────────── */
 .naming-box{
   background:rgba(34,197,94,.05);border:1px solid rgba(34,197,94,.18);
-  border-radius:11px;padding:14px 16px;margin-top:12px;
+  border-radius:11px;padding:14px 16px;margin-top:20px !important;
 }
-.naming-title{font-size:11px;font-weight:800;color:#22C55E;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;}
 .naming-row{display:flex;gap:8px;flex-wrap:wrap;}
 .naming-pill{
   padding:4px 12px;border-radius:20px;
   font-size:13px;font-weight:700;
   background:rgba(34,197,94,.12);color:#22C55E;
 }
-/* ── FOOTER ──────────────────────────────────────────── */
-.page-footer{border-top:1px solid var(--border);padding:24px 0;margin-top:0;}
-.footer-inner{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
-.footer-copy{font-size:12px;color:var(--text3);}
-.footer-logo{height:15px;width:auto;opacity:.35;}
 /* ── TOAST ───────────────────────────────────────────── */
 .toast{
   position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(8px);
@@ -367,8 +364,6 @@ html,body{min-height:100%;font-family:'Plus Jakarta Sans',sans-serif;background:
             <clipPath id="hc"><rect width="402" height="95.0676" fill="white"/></clipPath>
           </defs>
         </svg>
-        <div class="header-divider"></div>
-        <span class="header-label">Operações Internas</span>
       </div>
       <button class="theme-btn" onclick="toggleTheme()">
         <span id="themeIcon">☀️</span>
@@ -381,11 +376,7 @@ html,body{min-height:100%;font-family:'Plus Jakarta Sans',sans-serif;background:
 <!-- ── HERO ── -->
 <section class="hero">
   <div class="page-wrap">
-    <div class="scroll-bottom">
-      <div class="hero-tag"><div class="hero-tag-dot"></div>Central de processos</div>
-    </div>
-    <h1 class="hero-title scroll-bottom delay-1">Operações <span>Internas</span><br>MAK Drive</h1>
-    <p class="hero-sub scroll-bottom delay-2">Processos, workflows e prompts documentados para toda a equipe. Consulte por categoria e copie o que precisar com um toque.</p>
+      <div class="hero-tag scroll-bottom"><div class="hero-tag-dot"></div>Central de operações</div>
   </div>
 </section>
 
@@ -421,7 +412,6 @@ html,body{min-height:100%;font-family:'Plus Jakarta Sans',sans-serif;background:
             <span class="pc-badge">10 etapas</span>
           </div>
           <h2 class="pc-title">Copy de Criativos</h2>
-          <p class="pc-desc">Briefing → análise de criativos próprios e concorrentes → datas → trends → brainstorm → criação com Claude → embelezar → revisar → enviar.</p>
           <div class="pc-meta">
             <span class="pc-stat">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
@@ -443,7 +433,6 @@ html,body{min-height:100%;font-family:'Plus Jakarta Sans',sans-serif;background:
             <span class="pc-badge">11 etapas</span>
           </div>
           <h2 class="pc-title">Copy de Conteúdos</h2>
-          <p class="pc-desc">Briefing → desempenho próprio e concorrentes → datas → notícias → trends → brainstorm → criação → embelezar → revisar → enviar.</p>
           <div class="pc-meta">
             <span class="pc-stat">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
@@ -465,7 +454,6 @@ html,body{min-height:100%;font-family:'Plus Jakarta Sans',sans-serif;background:
             <span class="pc-badge">6 etapas</span>
           </div>
           <h2 class="pc-title">Design de Criativos</h2>
-          <p class="pc-desc">Briefing → análise de desempenho do cliente e concorrentes → criação (IA ou manual) com regras de objetivo/público/referência → revisar → enviar.</p>
           <div class="pc-meta">
             <span class="pc-stat">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
@@ -487,7 +475,6 @@ html,body{min-height:100%;font-family:'Plus Jakarta Sans',sans-serif;background:
             <span class="pc-badge">6 etapas</span>
           </div>
           <h2 class="pc-title">Design de Conteúdos</h2>
-          <p class="pc-desc">Briefing → análise de desempenho → definir padrão (Performance) → criação com regras objetivo/público/estilo → revisar → enviar.</p>
           <div class="pc-meta">
             <span class="pc-stat">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
@@ -509,7 +496,6 @@ html,body{min-height:100%;font-family:'Plus Jakarta Sans',sans-serif;background:
             <span class="pc-badge">6 etapas</span>
           </div>
           <h2 class="pc-title">Edição de Vídeos — Criativos</h2>
-          <p class="pc-desc">Briefing → análise de vídeos do cliente e concorrentes → criação (Seedence/CapCut ou manual) com regras de B-roll e narração → revisar → enviar.</p>
           <div class="pc-meta">
             <span class="pc-stat">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="10 8 16 12 10 16 10 8"/></svg>
@@ -531,7 +517,6 @@ html,body{min-height:100%;font-family:'Plus Jakarta Sans',sans-serif;background:
             <span class="pc-badge">5 etapas</span>
           </div>
           <h2 class="pc-title">Edição de Vídeos — Conteúdos</h2>
-          <p class="pc-desc">Briefing → análise de desempenho dos vídeos → criação com regras de B-roll, narração e estilo → revisar → enviar.</p>
           <div class="pc-meta">
             <span class="pc-stat">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="10 8 16 12 10 16 10 8"/></svg>
@@ -561,19 +546,6 @@ html,body{min-height:100%;font-family:'Plus Jakarta Sans',sans-serif;background:
 
   </div>
 </section>
-
-<!-- ── FOOTER ── -->
-<footer class="page-footer">
-  <div class="page-wrap">
-    <div class="footer-inner">
-      <span class="footer-copy">© 2025 MAK Drive — Uso interno</span>
-      <svg class="footer-logo" viewBox="0 0 402 96" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <g clip-path="url(#fc)"><path d="M0.524658 93.4085V31.2669H12.2988V93.4085H0.524658ZM42.5192 93.4085V55.8617C42.5192 51.2393 41.0801 47.6199 38.202 45.0034C35.4111 42.2997 31.8789 40.9478 27.6052 40.9478C24.7272 40.9478 22.1543 41.5584 19.8867 42.7793C17.619 44.0003 15.7875 45.7012 14.392 47.8815C12.9966 50.0618 12.2988 52.6783 12.2988 55.7311L7.45836 53.3761C7.45836 48.6665 8.46135 44.5672 10.4673 41.0787C12.5605 37.59 15.395 34.8863 18.9709 32.9675C22.5468 30.9616 26.5587 29.9585 31.0068 29.9585C35.3676 29.9585 39.2923 30.9179 42.781 32.8366C46.3569 34.7554 49.1478 37.4591 51.1537 40.9478C53.2469 44.4365 54.2934 48.5793 54.2934 53.3761V93.4085H42.5192ZM84.514 93.4085V55.8617C84.514 51.2393 83.075 47.6199 80.1966 45.0034C77.4057 42.2997 73.9173 40.9478 69.7308 40.9478C66.8527 40.9478 64.2361 41.5584 61.8814 42.7793C59.6137 44.0003 57.7821 45.7012 56.3868 47.8815C54.9912 50.0618 54.2934 52.6783 54.2934 55.7311L47.6216 53.3761C47.8832 48.5793 49.1478 44.48 51.4153 41.0787C53.7703 37.59 56.7793 34.8863 60.4421 32.9675C64.1052 30.9616 68.1173 29.9585 72.4782 29.9585C77.0135 29.9585 81.0688 30.9179 84.6447 32.8366C88.2206 34.7554 91.0552 37.4591 93.1484 40.9478C95.3287 44.4365 96.4189 48.6227 96.4189 53.507V93.4085H84.514ZM133.634 94.7166C127.965 94.7166 122.82 93.3213 118.197 90.5301C113.575 87.652 109.911 83.7711 107.208 78.8868C104.592 74.0028 103.283 68.5081 103.283 62.4029C103.283 56.2979 104.592 50.8033 107.208 45.919C109.911 41.035 113.531 37.1538 118.066 34.2757C122.689 31.3976 127.878 29.9585 133.634 29.9585C138.344 29.9585 142.531 30.9616 146.194 32.9675C149.944 34.8863 152.953 37.59 155.22 41.0787C157.488 44.48 158.753 48.4483 159.014 52.9836V71.6916C158.753 76.1396 157.488 80.108 155.22 83.5965C153.04 87.0852 150.075 89.8326 146.325 91.8385C142.661 93.7573 138.431 94.7166 133.634 94.7166ZM135.597 83.5965C141.44 83.5965 146.15 81.6343 149.726 77.7096C153.302 73.6975 155.09 68.5953 155.09 62.4029C155.09 58.1295 154.261 54.4227 152.604 51.283C151.034 48.0559 148.766 45.5702 145.801 43.8259C142.836 41.9943 139.391 41.0787 135.466 41.0787C131.541 41.0787 128.053 41.9943 125 43.8259C122.035 45.6574 119.68 48.1868 117.935 51.4136C116.278 54.5536 115.45 58.1729 115.45 62.2723C115.45 66.4585 116.278 70.1653 117.935 73.3922C119.68 76.5321 122.078 79.0177 125.131 80.8493C128.183 82.6808 131.672 83.5965 135.597 83.5965ZM154.305 93.4085V76.6628L156.529 61.4873L154.305 46.4424V31.2669H166.21V93.4085H154.305ZM216.581 93.4085L187.538 61.6182L216.32 31.2669H230.579L198.527 64.7579L199.051 57.9551L231.757 93.4085H216.581ZM176.811 93.4085V-0.000244141H188.585V93.4085H176.811Z" fill="url(#fg)"/></g>
-        <defs><linearGradient id="fg" x1="0" y1="34" x2="233" y2="95" gradientUnits="userSpaceOnUse"><stop stop-color="#925CFF"/><stop offset="1" stop-color="#5B5FDA"/></linearGradient><clipPath id="fc"><rect width="402" height="95.0676" fill="white"/></clipPath></defs>
-      </svg>
-    </div>
-  </div>
-</footer>
 
 <!-- ═══════════════════════════════════════════════════════ -->
 <!--  POPUPS                                                 -->
@@ -645,7 +617,7 @@ Anexei aqui nessa mensagem também uma série de dados, pesquisas, análises de 
       </div></div>
 
       <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">07</div><span class="gb-step-title">Criação — Claude</span></div><div class="gb-step-body"><p class="gb-step-desc">No mesmo chat da etapa 06, realize a criação dos criativos de fato baseado em tudo levantado. Siga o <strong>naming padrão MAK</strong>.</p>
-        <div class="naming-box"><div class="naming-title">Naming padrão MAK</div><div class="naming-row"><span class="naming-pill">Conteúdos: CT01, CT02…</span><span class="naming-pill">Criativos: AD01, AD02…</span><span class="naming-pill">C/C: ADCT01, ADCT02…</span></div></div>
+        <div class="naming-box"><div class="naming-row"><span class="naming-pill">Conteúdos: CT01, CT02…</span><span class="naming-pill">Criativos: AD01, AD02…</span><span class="naming-pill">C/C: ADCT01, ADCT02…</span></div></div>
         <div class="prompt-box" style="margin-top:11px">
           <div class="prompt-box-label"><span class="prompt-box-tag">✦ Prompt — Criação (Claude)</span><button class="copy-btn" onclick="copyMsg(this,`Vamos agora realizar a criação dos criativos de fato, seguindo a seguinte estrutura e levando em conta os dados do cliente passados acima de forma estratégica e feita com perfeição:\n\n[Aqui cole a estrutura indicando quantos posts devem ser feitos, o direcionamento e tema de cada um, e o tipo: vídeo, post, carrossel, etc…]`)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copiar</button></div>
           <div class="prompt-text">Vamos agora realizar a criação dos criativos de fato, seguindo a seguinte estrutura e levando em conta os dados do cliente passados acima de forma estratégica e feita com perfeição:
@@ -749,7 +721,7 @@ Baseado nos dados anexados, gere um brainstorm de ideias para conteúdos para cr
       </div></div>
 
       <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">08</div><span class="gb-step-title">Criação — Claude</span></div><div class="gb-step-body"><p class="gb-step-desc">No mesmo chat da etapa 07, crie os conteúdos de fato. Siga o <strong>naming padrão MAK</strong>.</p>
-        <div class="naming-box"><div class="naming-title">Naming padrão MAK</div><div class="naming-row"><span class="naming-pill">Conteúdos: CT01, CT02…</span><span class="naming-pill">Criativos: AD01, AD02…</span><span class="naming-pill">C/C: ADCT01, ADCT02…</span></div></div>
+        <div class="naming-box"><div class="naming-row"><span class="naming-pill">Conteúdos: CT01, CT02…</span><span class="naming-pill">Criativos: AD01, AD02…</span><span class="naming-pill">C/C: ADCT01, ADCT02…</span></div></div>
         <div class="prompt-box" style="margin-top:11px">
           <div class="prompt-box-label"><span class="prompt-box-tag">✦ Prompt — Criação (Claude)</span><button class="copy-btn" onclick="copyMsg(this,`Vamos agora realizar a criação dos conteúdos de fato, seguindo a seguinte estrutura e levando em conta os dados do cliente passados acima de forma estratégica e feita com perfeição:\n\n[Aqui cole a estrutura indicando quantos posts devem ser feitos, o direcionamento e tema de cada um, e o tipo: vídeo, post, carrossel, etc…]`)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copiar</button></div>
           <div class="prompt-text">Vamos agora realizar a criação dos conteúdos de fato, seguindo a seguinte estrutura e levando em conta os dados do cliente passados acima de forma estratégica e feita com perfeição:
@@ -810,7 +782,7 @@ Baseado nos dados anexados, gere um brainstorm de ideias para conteúdos para cr
       <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">05</div><span class="gb-step-title">Revisar</span></div><div class="gb-step-body"><p class="gb-step-desc">Se possível aguarde algumas horas e revise com olho fresco, ou revise na hora mesmo.</p></div></div>
 
       <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">06</div><span class="gb-step-title">Enviar para aprovação</span></div><div class="gb-step-body"><p class="gb-step-desc">Envie para aprovação via ClickUp seguindo o naming padrão.</p>
-        <div class="naming-box" style="margin-top:10px"><div class="naming-title">Naming padrão MAK</div><div class="naming-row"><span class="naming-pill">CT01, CT02…</span><span class="naming-pill">AD01, AD02…</span><span class="naming-pill">ADCT01, ADCT02…</span></div></div>
+        <div class="naming-box" style="margin-top:10px"><div class="naming-row"><span class="naming-pill">CT01, CT02…</span><span class="naming-pill">AD01, AD02…</span><span class="naming-pill">ADCT01, ADCT02…</span></div></div>
         <div class="gb-obs" style="margin-top:10px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><p class="gb-obs-text">Se o doc de copy for até CT08 e houver um extra, o próximo será CT09 — continue a sequência existente.</p></div>
       </div></div>
 
@@ -860,7 +832,7 @@ Baseado nos dados anexados, gere um brainstorm de ideias para conteúdos para cr
       <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">05</div><span class="gb-step-title">Revisar</span></div><div class="gb-step-body"><p class="gb-step-desc">Se possível aguarde algumas horas e revise com olho fresco, ou revise na hora mesmo.</p></div></div>
 
       <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">06</div><span class="gb-step-title">Enviar para aprovação</span></div><div class="gb-step-body"><p class="gb-step-desc">Envie para aprovação via ClickUp seguindo o naming padrão.</p>
-        <div class="naming-box" style="margin-top:10px"><div class="naming-title">Naming padrão MAK</div><div class="naming-row"><span class="naming-pill">CT01, CT02…</span><span class="naming-pill">AD01, AD02…</span><span class="naming-pill">ADCT01, ADCT02…</span></div></div>
+        <div class="naming-box" style="margin-top:10px"><div class="naming-row"><span class="naming-pill">CT01, CT02…</span><span class="naming-pill">AD01, AD02…</span><span class="naming-pill">ADCT01, ADCT02…</span></div></div>
       </div></div>
     </div>
   </div>
@@ -899,7 +871,7 @@ Baseado nos dados anexados, gere um brainstorm de ideias para conteúdos para cr
       <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">05</div><span class="gb-step-title">Revisar</span></div><div class="gb-step-body"><p class="gb-step-desc">Se possível aguarde algumas horas e revise com olho fresco, ou revise na hora mesmo.</p></div></div>
 
       <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">06</div><span class="gb-step-title">Enviar para aprovação</span></div><div class="gb-step-body"><p class="gb-step-desc">Envie para aprovação via ClickUp seguindo o naming padrão.</p>
-        <div class="naming-box" style="margin-top:10px"><div class="naming-title">Naming padrão MAK</div><div class="naming-row"><span class="naming-pill">CT01, CT02…</span><span class="naming-pill">AD01, AD02…</span><span class="naming-pill">ADCT01, ADCT02…</span></div></div>
+        <div class="naming-box" style="margin-top:10px"><div class="naming-row"><span class="naming-pill">CT01, CT02…</span><span class="naming-pill">AD01, AD02…</span><span class="naming-pill">ADCT01, ADCT02…</span></div></div>
       </div></div>
     </div>
   </div>
@@ -935,7 +907,7 @@ Baseado nos dados anexados, gere um brainstorm de ideias para conteúdos para cr
       <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">04</div><span class="gb-step-title">Revisar</span></div><div class="gb-step-body"><p class="gb-step-desc">Se possível aguarde algumas horas e revise com olho fresco, ou revise na hora mesmo.</p></div></div>
 
       <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">05</div><span class="gb-step-title">Enviar para aprovação</span></div><div class="gb-step-body"><p class="gb-step-desc">Envie para aprovação via ClickUp seguindo o naming padrão.</p>
-        <div class="naming-box" style="margin-top:10px"><div class="naming-title">Naming padrão MAK</div><div class="naming-row"><span class="naming-pill">CT01, CT02…</span><span class="naming-pill">AD01, AD02…</span><span class="naming-pill">ADCT01, ADCT02…</span></div></div>
+        <div class="naming-box" style="margin-top:10px"><div class="naming-row"><span class="naming-pill">CT01, CT02…</span><span class="naming-pill">AD01, AD02…</span><span class="naming-pill">ADCT01, ADCT02…</span></div></div>
       </div></div>
     </div>
   </div>
