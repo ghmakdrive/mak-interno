@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>MAK Drive — Operações Internas</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+/* ── TOKENS ─────────────────────────────────────────── */
+:root{
+  --accent:#6E68E4;--accent-2:#9A62FE;
+  --accent-glow:rgba(110,104,228,.16);
+  --success:#22C55E;--danger:#EF4444;--warning:#F59E0B;--whatsapp:#25D366;
+}
+[data-theme="dark"]{
+  --bg:#0E0D14;--bg2:#16141F;--bg3:#1E1C2A;--bg4:#252336;
+  --border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.13);
+  --text:#F0EFF8;--text2:#9B99B4;--text3:#5E5C72;
+  --card-bg:#16141F;--card-hover:#1E1C2A;
+  --shadow:0 4px 28px rgba(0,0,0,.38);--shadow2:0 8px 48px rgba(0,0,0,.5);
+}
+[data-theme="light"]{
+  --bg:#F5F4FB;--bg2:#FFFFFF;--bg3:#ECEAF8;--bg4:#E0DDFF;
+  --border:rgba(110,104,228,.09);--border2:rgba(110,104,228,.2);
+  --text:#1A1830;--text2:#6B698A;--text3:#A8A6C0;
+  --card-bg:#FFFFFF;--card-hover:#F5F4FB;
+  --shadow:0 4px 28px rgba(110,104,228,.07);--shadow2:0 8px 48px rgba(110,104,228,.12);
+}
+/* ── RESET ──────────────────────────────────────────── */
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{min-height:100%;font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
+/* ── SCROLL REVEAL ──────────────────────────────────── */
+.scroll-top{opacity:0;filter:blur(2px);transform:translate(0,-30px) scale(1);transition:all 1s!important;}
+.scroll-bottom{opacity:0;filter:blur(2px);transform:translate(0,30px) scale(1);transition:all 1s!important;}
+.scroll-left{opacity:0;filter:blur(2px);transform:translate(-30px,0) scale(1);transition:all 1s!important;}
+.scroll-right{opacity:0;filter:blur(2px);transform:translate(30px,0) scale(1);transition:all 1s!important;}
+.scroll-scale{opacity:0;filter:blur(2px);transform:scale(0);transition:all 1s!important;}
+.ativado{opacity:1!important;filter:blur(0)!important;transform:translate(0,0) scale(1)!important;}
+.delay-1{transition-delay:.3s!important;}
+.delay-2{transition-delay:.6s!important;}
+.delay-3{transition-delay:.9s!important;}
+.delay-4{transition-delay:1.2s!important;}
+@media(max-width:1024px){
+  .scroll-bottom,.scroll-top,.scroll-left,.scroll-right{filter:blur(0)!important;transition:opacity .8s,transform .8s!important;transform:translate(0,40px) scale(1)!important;}
+  .delay-1,.delay-2,.delay-3,.delay-4{transition-delay:0s!important;}
+}
+/* ── LAYOUT ─────────────────────────────────────────── */
+.page-wrap{max-width:1280px;margin:0 auto;padding:0 32px;}
+@media(max-width:1024px){.page-wrap{padding:0 12px;}}
+/* ── HEADER ─────────────────────────────────────────── */
+.header{
+  padding:20px 0;border-bottom:1px solid var(--border);
+  background:var(--bg);position:sticky;top:0;z-index:100;
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+}
+.header-inner{display:flex;align-items:center;justify-content:space-between;gap:16px;}
+.header-logo{display:flex;align-items:center;gap:12px;}
+.header-logo svg{height:20px;width:auto;}
+.header-divider{width:1px;height:20px;background:var(--border2);}
+.header-label{font-size:13px;font-weight:600;color:var(--text2);}
+.theme-btn{
+  display:flex;align-items:center;gap:7px;
+  padding:7px 13px;border-radius:10px;border:1px solid var(--border2);
+  background:transparent;color:var(--text2);font-size:12px;font-weight:500;
+  cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s;
+}
+.theme-btn:hover{background:var(--bg3);color:var(--text);}
+/* ── HERO ────────────────────────────────────────────── */
+.hero{padding:64px 0 48px;}
+.hero-tag{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:5px 13px;border-radius:40px;
+  border:1px solid var(--border2);background:var(--bg3);
+  font-size:11px;font-weight:700;color:var(--accent-2);
+  text-transform:uppercase;letter-spacing:.8px;margin-bottom:22px;
+}
+.hero-tag-dot{width:6px;height:6px;border-radius:50%;background:var(--accent-2);}
+.hero-title{
+  font-size:52px;font-weight:800;line-height:1.08;
+  letter-spacing:-1.4px;margin-bottom:16px;
+}
+.hero-title span{
+  background:linear-gradient(90deg,var(--accent),var(--accent-2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero-sub{font-size:16px;color:var(--text2);line-height:1.6;max-width:560px;font-weight:500;}
+@media(max-width:768px){
+  .hero{padding:44px 0 32px;}
+  .hero-title{font-size:34px;letter-spacing:-.8px;}
+  .hero-sub{font-size:14px;}
+}
+/* ── FILTROS ─────────────────────────────────────────── */
+.filter-section{padding:0 0 32px;}
+.filter-bar{
+  display:flex;align-items:center;gap:6px;
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:14px;padding:5px;width:fit-content;
+}
+.filter-btn{
+  display:flex;align-items:center;gap:8px;
+  padding:9px 18px;border-radius:10px;border:none;
+  background:transparent;color:var(--text3);
+  font-size:13px;font-weight:600;cursor:pointer;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  transition:all .22s;white-space:nowrap;
+}
+.filter-btn:hover{color:var(--text2);background:var(--bg4);}
+.filter-btn.active{background:var(--accent);color:#fff;box-shadow:0 4px 16px rgba(110,104,228,.3);}
+.filter-btn .fb-count{
+  font-size:10px;font-weight:800;
+  padding:2px 7px;border-radius:20px;
+  background:rgba(255,255,255,.14);
+  color:inherit;
+}
+.filter-btn:not(.active) .fb-count{background:var(--bg4);color:var(--text3);}
+/* ── CATEGORY BLOCK ──────────────────────────────────── */
+.cat-block{display:none;}
+.cat-block.visible{display:block;}
+.cat-section-label{
+  font-size:11px;font-weight:700;color:var(--text3);
+  text-transform:uppercase;letter-spacing:.8px;margin-bottom:20px;
+}
+/* ── PROCESS GRID ────────────────────────────────────── */
+.proc-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:14px;margin-bottom:64px;
+}
+/* ── PROCESS CARD ────────────────────────────────────── */
+.proc-card{
+  background:var(--card-bg);border:1px solid var(--border);
+  border-radius:16px;padding:24px;cursor:pointer;
+  transition:border-color .3s,box-shadow .3s,transform .3s,background .3s;
+  position:relative;overflow:hidden;
+}
+.proc-card::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 0% 0%,var(--accent-glow),transparent 70%);
+  opacity:0;transition:opacity .4s;pointer-events:none;
+}
+.proc-card:hover{
+  border-color:rgba(110,104,228,.4);
+  box-shadow:0 8px 40px rgba(110,104,228,.12);
+  transform:translateY(-3px);background:var(--card-hover);
+}
+.proc-card:hover::before{opacity:1;}
+.proc-card:active{transform:translateY(-1px);}
+.pc-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:16px;}
+.pc-icon{
+  width:44px;height:44px;border-radius:12px;
+  background:var(--accent-glow);border:1px solid rgba(110,104,228,.2);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--accent-2);flex-shrink:0;
+}
+.pc-badge{
+  padding:4px 10px;border-radius:20px;
+  font-size:10px;font-weight:700;
+  background:var(--accent-glow);color:var(--accent-2);
+  border:1px solid rgba(110,104,228,.2);
+  white-space:nowrap;
+}
+.pc-title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:7px;line-height:1.3;}
+.pc-desc{font-size:12.5px;color:var(--text2);line-height:1.6;margin-bottom:18px;}
+.pc-meta{display:flex;align-items:center;gap:12px;}
+.pc-stat{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--text3);}
+.pc-open{
+  display:flex;align-items:center;gap:5px;margin-left:auto;
+  font-size:12px;font-weight:700;color:var(--accent-2);
+  background:var(--accent-glow);border:1px solid rgba(110,104,228,.2);
+  padding:6px 12px;border-radius:8px;transition:all .2s;
+}
+.proc-card:hover .pc-open{background:var(--accent);color:#fff;border-color:var(--accent);}
+/* ── SOON CARD ────────────────────────────────────────── */
+.soon-card{
+  background:var(--bg3);border:1px dashed var(--border2);
+  border-radius:16px;padding:48px 32px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;gap:16px;
+}
+.soon-icon{
+  width:56px;height:56px;border-radius:16px;
+  background:var(--bg4);border:1px solid var(--border2);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--text3);
+}
+.soon-title{font-size:17px;font-weight:700;color:var(--text2);}
+.soon-sub{font-size:13px;color:var(--text3);max-width:340px;line-height:1.6;}
+.soon-pill{
+  padding:5px 14px;border-radius:20px;
+  background:var(--bg4);border:1px solid var(--border2);
+  font-size:11px;font-weight:700;color:var(--text3);
+  text-transform:uppercase;letter-spacing:.5px;
+}
+/* ── POPUP OVERLAY ───────────────────────────────────── */
+.popup-overlay{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.65);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  z-index:500;display:flex;align-items:center;justify-content:center;
+  padding:16px;opacity:0;pointer-events:none;transition:opacity .28s;
+}
+.popup-overlay.open{opacity:1;pointer-events:all;}
+/* ── POPUP ───────────────────────────────────────────── */
+.popup{
+  background:var(--bg2);border:1px solid var(--border2);border-radius:20px;
+  width:100%;max-width:700px;max-height:90vh;
+  display:flex;flex-direction:column;
+  transform:translateY(20px) scale(.97);transition:transform .28s;overflow:hidden;
+}
+.popup-overlay.open .popup{transform:translateY(0) scale(1);}
+.popup-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:24px 28px 22px;border-bottom:1px solid var(--border);
+  flex-shrink:0;gap:14px;
+}
+.popup-header-left{display:flex;align-items:center;gap:14px;}
+.popup-hicon{
+  width:44px;height:44px;border-radius:12px;
+  background:var(--accent-glow);border:1px solid rgba(110,104,228,.2);
+  display:flex;align-items:center;justify-content:center;color:var(--accent-2);flex-shrink:0;
+}
+.popup-htitle{font-size:17px;font-weight:700;color:var(--text);}
+.popup-hsub{font-size:13px;color:var(--text3);margin-top:3px;}
+.popup-close{
+  width:36px;height:36px;border-radius:9px;border:none;
+  background:var(--bg3);color:var(--text2);cursor:pointer;
+  font-size:16px;display:flex;align-items:center;justify-content:center;
+  transition:all .2s;flex-shrink:0;font-family:'Plus Jakarta Sans',sans-serif;
+}
+.popup-close:hover{background:var(--bg4);color:var(--text);}
+.popup-body{overflow-y:auto;flex:1;padding:28px;}
+.popup-body::-webkit-scrollbar{width:4px;}
+.popup-body::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
+/* ── REGRAS GERAIS BOX ───────────────────────────────── */
+.gb-rules-intro{
+  background:rgba(110,104,228,.06);border:1px solid rgba(110,104,228,.18);
+  border-radius:14px;padding:18px 20px;margin-bottom:28px;
+}
+.gb-rules-title{font-size:12px;font-weight:800;color:var(--accent-2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:13px;}
+.gb-rules-item{
+  display:flex;gap:10px;align-items:flex-start;
+  font-size:13.5px;color:var(--text2);line-height:1.65;margin-bottom:9px;
+}
+.gb-rules-item:last-child{margin-bottom:0;}
+.gb-rules-dot{width:6px;height:6px;border-radius:50%;background:var(--accent-2);flex-shrink:0;margin-top:7px;}
+/* ── STEPS ───────────────────────────────────────────── */
+.gb-divider{display:flex;align-items:center;gap:10px;margin:28px 0 18px;}
+.gb-divider-line{flex:1;height:1px;background:var(--border);}
+.gb-divider-label{font-size:11.5px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;white-space:nowrap;}
+.gb-step{border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:12px;}
+.gb-step:last-child{margin-bottom:0;}
+.gb-step-header{
+  display:flex;align-items:center;gap:13px;
+  padding:14px 18px;background:var(--bg3);border-bottom:1px solid var(--border);
+}
+.gb-step-num{
+  width:28px;height:28px;border-radius:8px;
+  background:var(--accent-glow);border:1px solid rgba(110,104,228,.25);
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:800;color:var(--accent-2);flex-shrink:0;
+}
+.gb-step-title{font-size:15px;font-weight:700;color:var(--text);}
+.gb-step-body{padding:18px 20px;}
+.gb-step-desc{font-size:14px;color:var(--text2);line-height:1.75;}
+.gb-step-desc strong{color:var(--text);font-weight:700;}
+/* ── LIST IN STEP ────────────────────────────────────── */
+.gb-list{margin:12px 0 0;display:flex;flex-direction:column;gap:7px;}
+.gb-list-item{
+  display:flex;gap:10px;align-items:flex-start;
+  font-size:13.5px;color:var(--text2);line-height:1.65;
+}
+.gb-list-dot{width:5px;height:5px;border-radius:50%;background:var(--text3);flex-shrink:0;margin-top:8px;}
+/* ── TOOL LINK ───────────────────────────────────────── */
+.gb-tool-link{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:7px 14px;border-radius:8px;
+  background:var(--bg3);border:1px solid var(--border2);
+  font-size:13px;font-weight:600;color:var(--accent-2);
+  text-decoration:none;transition:all .2s;margin-top:10px;
+}
+.gb-tool-link:hover{background:var(--accent-glow);border-color:rgba(110,104,228,.3);}
+/* ── PROMPT BOX ──────────────────────────────────────── */
+.prompt-box{
+  background:var(--bg3);border-radius:12px;border:1px solid var(--border);
+  overflow:hidden;margin-top:13px;
+}
+.prompt-box-label{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 16px;background:var(--bg4);border-bottom:1px solid var(--border);
+}
+.prompt-box-tag{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;}
+.copy-btn{
+  display:flex;align-items:center;gap:6px;
+  padding:5px 12px;border-radius:7px;border:none;
+  background:var(--accent-glow);color:var(--accent-2);
+  font-size:12px;font-weight:700;cursor:pointer;
+  font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s;
+}
+.copy-btn:hover{background:var(--accent);color:#fff;}
+.copy-btn.copied{background:rgba(34,197,94,.15);color:#22C55E;}
+.prompt-text{
+  padding:16px;font-size:13.5px;color:var(--text2);line-height:1.8;
+  white-space:pre-wrap;word-break:break-word;
+  font-family:'Plus Jakarta Sans',sans-serif;
+}
+/* ── OBS ─────────────────────────────────────────────── */
+.gb-obs{
+  display:flex;gap:11px;align-items:flex-start;
+  padding:13px 16px;border-radius:10px;
+  background:rgba(110,104,228,.06);border:1px solid rgba(110,104,228,.15);margin-top:12px;
+}
+.gb-obs svg{color:var(--accent-2);flex-shrink:0;margin-top:2px;}
+.gb-obs-text{font-size:13.5px;color:var(--text2);line-height:1.65;}
+.gb-obs-text strong{color:var(--text);}
+/* ── NAMING BOX ──────────────────────────────────────── */
+.naming-box{
+  background:rgba(34,197,94,.05);border:1px solid rgba(34,197,94,.18);
+  border-radius:11px;padding:14px 16px;margin-top:12px;
+}
+.naming-title{font-size:11px;font-weight:800;color:#22C55E;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;}
+.naming-row{display:flex;gap:8px;flex-wrap:wrap;}
+.naming-pill{
+  padding:4px 12px;border-radius:20px;
+  font-size:13px;font-weight:700;
+  background:rgba(34,197,94,.12);color:#22C55E;
+}
+/* ── FOOTER ──────────────────────────────────────────── */
+.page-footer{border-top:1px solid var(--border);padding:24px 0;margin-top:0;}
+.footer-inner{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.footer-copy{font-size:12px;color:var(--text3);}
+.footer-logo{height:15px;width:auto;opacity:.35;}
+/* ── TOAST ───────────────────────────────────────────── */
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(8px);
+  background:var(--bg3);border:1px solid var(--border2);border-radius:11px;
+  padding:9px 17px;font-size:13px;font-weight:600;color:var(--text);
+  box-shadow:var(--shadow2);z-index:9999;
+  display:flex;align-items:center;gap:7px;
+  opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;white-space:nowrap;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast svg{color:var(--success);}
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header class="header">
+  <div class="page-wrap">
+    <div class="header-inner">
+      <div class="header-logo">
+        <svg height="20" viewBox="0 0 402 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <g clip-path="url(#hc)">
+            <path d="M0.524658 93.4085V31.2669H12.2988V93.4085H0.524658ZM42.5192 93.4085V55.8617C42.5192 51.2393 41.0801 47.6199 38.202 45.0034C35.4111 42.2997 31.8789 40.9478 27.6052 40.9478C24.7272 40.9478 22.1543 41.5584 19.8867 42.7793C17.619 44.0003 15.7875 45.7012 14.392 47.8815C12.9966 50.0618 12.2988 52.6783 12.2988 55.7311L7.45836 53.3761C7.45836 48.6665 8.46135 44.5672 10.4673 41.0787C12.5605 37.59 15.395 34.8863 18.9709 32.9675C22.5468 30.9616 26.5587 29.9585 31.0068 29.9585C35.3676 29.9585 39.2923 30.9179 42.781 32.8366C46.3569 34.7554 49.1478 37.4591 51.1537 40.9478C53.2469 44.4365 54.2934 48.5793 54.2934 53.3761V93.4085H42.5192ZM84.514 93.4085V55.8617C84.514 51.2393 83.075 47.6199 80.1966 45.0034C77.4057 42.2997 73.9173 40.9478 69.7308 40.9478C66.8527 40.9478 64.2361 41.5584 61.8814 42.7793C59.6137 44.0003 57.7821 45.7012 56.3868 47.8815C54.9912 50.0618 54.2934 52.6783 54.2934 55.7311L47.6216 53.3761C47.8832 48.5793 49.1478 44.48 51.4153 41.0787C53.7703 37.59 56.7793 34.8863 60.4421 32.9675C64.1052 30.9616 68.1173 29.9585 72.4782 29.9585C77.0135 29.9585 81.0688 30.9179 84.6447 32.8366C88.2206 34.7554 91.0552 37.4591 93.1484 40.9478C95.3287 44.4365 96.4189 48.6227 96.4189 53.507V93.4085H84.514ZM133.634 94.7166C127.965 94.7166 122.82 93.3213 118.197 90.5301C113.575 87.652 109.911 83.7711 107.208 78.8868C104.592 74.0028 103.283 68.5081 103.283 62.4029C103.283 56.2979 104.592 50.8033 107.208 45.919C109.911 41.035 113.531 37.1538 118.066 34.2757C122.689 31.3976 127.878 29.9585 133.634 29.9585C138.344 29.9585 142.531 30.9616 146.194 32.9675C149.944 34.8863 152.953 37.59 155.22 41.0787C157.488 44.48 158.753 48.4483 159.014 52.9836V71.6916C158.753 76.1396 157.488 80.108 155.22 83.5965C153.04 87.0852 150.075 89.8326 146.325 91.8385C142.661 93.7573 138.431 94.7166 133.634 94.7166ZM135.597 83.5965C141.44 83.5965 146.15 81.6343 149.726 77.7096C153.302 73.6975 155.09 68.5953 155.09 62.4029C155.09 58.1295 154.261 54.4227 152.604 51.283C151.034 48.0559 148.766 45.5702 145.801 43.8259C142.836 41.9943 139.391 41.0787 135.466 41.0787C131.541 41.0787 128.053 41.9943 125 43.8259C122.035 45.6574 119.68 48.1868 117.935 51.4136C116.278 54.5536 115.45 58.1729 115.45 62.2723C115.45 66.4585 116.278 70.1653 117.935 73.3922C119.68 76.5321 122.078 79.0177 125.131 80.8493C128.183 82.6808 131.672 83.5965 135.597 83.5965ZM154.305 93.4085V76.6628L156.529 61.4873L154.305 46.4424V31.2669H166.21V93.4085H154.305ZM216.581 93.4085L187.538 61.6182L216.32 31.2669H230.579L198.527 64.7579L199.051 57.9551L231.757 93.4085H216.581ZM176.811 93.4085V-0.000244141H188.585V93.4085H176.811Z" fill="url(#hg)"/>
+            <path d="M381.721 93.4085C377.701 93.4085 374.088 92.5054 370.886 90.6996C367.74 88.8358 365.236 86.3309 363.37 83.1852C361.566 79.9814 360.662 76.3699 360.662 72.3505C360.662 68.3894 361.536 64.8361 363.283 61.6907C365.089 58.5451 367.537 56.0695 370.622 54.2635C373.77 52.3996 377.293 51.4674 381.196 51.4674C384.809 51.4674 387.982 52.2831 390.719 53.9142C393.517 55.4869 395.701 57.7003 397.274 60.5548C398.846 63.409 399.631 66.7002 399.631 70.4282C399.631 70.6613 399.604 71.0399 399.544 71.5641C399.544 72.0303 399.487 72.6419 399.371 73.3992H362.585V70.8653H397.624L396.836 71.4767C397.07 68.0399 396.546 65.011 395.264 62.3896C393.982 59.7684 392.118 57.7296 389.671 56.2732C387.283 54.7586 384.429 54.0014 381.11 54.0014C377.614 54.0014 374.525 54.7877 371.847 56.3607C369.226 57.8752 367.156 60.0012 365.643 62.7392C364.188 65.4187 363.46 68.5644 363.46 72.1758C363.46 75.9038 364.215 79.166 365.73 81.9621C367.303 84.7582 369.487 86.9426 372.285 88.5152C375.08 90.0882 378.342 90.8745 382.071 90.8745C384.866 90.8745 387.43 90.3503 389.758 89.3016C392.148 88.2531 394.158 86.6804 395.788 84.5832L397.624 86.4183C395.818 88.5736 393.517 90.2919 390.719 91.5734C387.982 92.7968 384.983 93.4085 381.721 93.4085Z" fill="#DDDDDD"/>
+            <path d="M339.492 92.535L320.62 52.3415H323.591L341.067 90.0882H339.582L357.145 52.3415H360.113L341.067 92.535H339.492Z" fill="#DDDDDD"/>
+            <path d="M312.46 92.535V52.3415H315.168V92.535H312.46Z" fill="#DDDDDD"/>
+            <path d="M283.209 92.5347V52.3412H285.917V92.5347H283.209ZM285.917 67.9817L284.081 67.4575C284.081 62.3315 285.423 58.3995 288.101 55.6615C290.839 52.8654 294.248 51.4674 298.325 51.4674C300.305 51.4674 302.139 51.817 303.828 52.5161C305.577 53.215 307.18 54.3219 308.636 55.8364L306.8 57.8459C305.577 56.5063 304.238 55.545 302.78 54.9626C301.383 54.38 299.751 54.0888 297.888 54.0888C294.335 54.0888 291.45 55.3122 289.237 57.7587C287.023 60.1471 285.917 63.5546 285.917 67.9817Z" fill="#DDDDDD"/>
+            <path d="M253.604 93.4085C249.759 93.4085 246.322 92.5057 243.293 90.6999C240.323 88.8358 237.963 86.3309 236.216 83.1855C234.468 80.0399 233.594 76.4865 233.594 72.5255C233.594 68.506 234.468 64.9236 236.216 61.7782C237.963 58.5742 240.352 56.0695 243.381 54.2638C246.41 52.3997 249.817 51.4677 253.604 51.4677C256.516 51.4677 259.254 52.021 261.817 53.1279C264.38 54.2345 266.565 55.8365 268.37 57.9334C270.235 60.0306 271.487 62.5646 272.127 65.5353V79.2535C271.429 82.1077 270.176 84.6126 268.37 86.7679C266.623 88.8649 264.468 90.4959 261.905 91.6609C259.4 92.8259 256.633 93.4085 253.604 93.4085ZM254.128 90.8746C257.448 90.8746 260.361 90.0882 262.866 88.5153C265.429 86.9426 267.409 84.7873 268.807 82.0496C270.264 79.2535 270.992 76.0788 270.992 72.5255C270.992 68.8556 270.264 65.6518 268.807 62.9139C267.351 60.1178 265.341 57.9334 262.778 56.3607C260.215 54.788 257.245 54.0014 253.866 54.0014C250.487 54.0014 247.487 54.788 244.866 56.3607C242.245 57.9334 240.177 60.1178 238.662 62.9139C237.148 65.6518 236.391 68.8265 236.391 72.438C236.391 75.9914 237.148 79.1661 238.662 81.9621C240.177 84.7582 242.274 86.9426 244.953 88.5153C247.633 90.0882 250.691 90.8746 254.128 90.8746ZM273.612 92.5347H270.904V81.7875L271.779 71.8263L270.904 62.1275V40.0338H273.612V92.5347Z" fill="#DDDDDD"/>
+          </g>
+          <defs>
+            <linearGradient id="hg" x1="0" y1="34" x2="233" y2="95" gradientUnits="userSpaceOnUse"><stop stop-color="#925CFF"/><stop offset="1" stop-color="#5B5FDA"/></linearGradient>
+            <clipPath id="hc"><rect width="402" height="95.0676" fill="white"/></clipPath>
+          </defs>
+        </svg>
+        <div class="header-divider"></div>
+        <span class="header-label">Operações Internas</span>
+      </div>
+      <button class="theme-btn" onclick="toggleTheme()">
+        <span id="themeIcon">☀️</span>
+        <span id="themeLabel">Modo Claro</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="page-wrap">
+    <div class="scroll-bottom">
+      <div class="hero-tag"><div class="hero-tag-dot"></div>Central de processos</div>
+    </div>
+    <h1 class="hero-title scroll-bottom delay-1">Operações <span>Internas</span><br>MAK Drive</h1>
+    <p class="hero-sub scroll-bottom delay-2">Processos, workflows e prompts documentados para toda a equipe. Consulte por categoria e copie o que precisar com um toque.</p>
+  </div>
+</section>
+
+<!-- ── FILTROS + CONTEÚDO ── -->
+<section class="filter-section">
+  <div class="page-wrap">
+
+    <!-- FILTER BAR -->
+    <div class="filter-bar scroll-bottom" style="margin-bottom:32px;">
+      <button class="filter-btn active" data-cat="processos" onclick="setCategory('processos',this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink:0"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Processos
+        <span class="fb-count">6</span>
+      </button>
+      <button class="filter-btn" data-cat="prompts" onclick="setCategory('prompts',this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink:0"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        Prompts
+        <span class="fb-count">Em breve</span>
+      </button>
+    </div>
+
+    <!-- CATEGORIA: PROCESSOS -->
+    <div class="cat-block visible" id="cat-processos">
+      <p class="cat-section-label scroll-bottom">Processos & Workflows — MAK Drive</p>
+      <div class="proc-grid">
+
+        <!-- CARD 1: Copy de Criativos -->
+        <div class="proc-card scroll-bottom" onclick="openPopup('cria')">
+          <div class="pc-top">
+            <div class="pc-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </div>
+            <span class="pc-badge">10 etapas</span>
+          </div>
+          <h2 class="pc-title">Copy de Criativos</h2>
+          <p class="pc-desc">Briefing → análise de criativos próprios e concorrentes → datas → trends → brainstorm → criação com Claude → embelezar → revisar → enviar.</p>
+          <div class="pc-meta">
+            <span class="pc-stat">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              3 prompts
+            </span>
+            <span class="pc-open">
+              Abrir
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </span>
+          </div>
+        </div>
+
+        <!-- CARD 2: Copy de Conteúdos -->
+        <div class="proc-card scroll-bottom delay-1" onclick="openPopup('cont')">
+          <div class="pc-top">
+            <div class="pc-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </div>
+            <span class="pc-badge">11 etapas</span>
+          </div>
+          <h2 class="pc-title">Copy de Conteúdos</h2>
+          <p class="pc-desc">Briefing → desempenho próprio e concorrentes → datas → notícias → trends → brainstorm → criação → embelezar → revisar → enviar.</p>
+          <div class="pc-meta">
+            <span class="pc-stat">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              3 prompts
+            </span>
+            <span class="pc-open">
+              Abrir
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </span>
+          </div>
+        </div>
+
+        <!-- CARD 3: Design de Criativos -->
+        <div class="proc-card scroll-bottom delay-2" onclick="openPopup('dsgcria')">
+          <div class="pc-top">
+            <div class="pc-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+            </div>
+            <span class="pc-badge">6 etapas</span>
+          </div>
+          <h2 class="pc-title">Design de Criativos</h2>
+          <p class="pc-desc">Briefing → análise de desempenho do cliente e concorrentes → criação (IA ou manual) com regras de objetivo/público/referência → revisar → enviar.</p>
+          <div class="pc-meta">
+            <span class="pc-stat">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              2 prompts IA
+            </span>
+            <span class="pc-open">
+              Abrir
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </span>
+          </div>
+        </div>
+
+        <!-- CARD 4: Design de Conteúdos -->
+        <div class="proc-card scroll-bottom" onclick="openPopup('dsgcont')">
+          <div class="pc-top">
+            <div class="pc-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+            </div>
+            <span class="pc-badge">6 etapas</span>
+          </div>
+          <h2 class="pc-title">Design de Conteúdos</h2>
+          <p class="pc-desc">Briefing → análise de desempenho → definir padrão (Performance) → criação com regras objetivo/público/estilo → revisar → enviar.</p>
+          <div class="pc-meta">
+            <span class="pc-stat">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              2 prompts IA
+            </span>
+            <span class="pc-open">
+              Abrir
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </span>
+          </div>
+        </div>
+
+        <!-- CARD 5: Edição de Vídeos de Criativos -->
+        <div class="proc-card scroll-bottom delay-1" onclick="openPopup('vidcria')">
+          <div class="pc-top">
+            <div class="pc-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+            </div>
+            <span class="pc-badge">6 etapas</span>
+          </div>
+          <h2 class="pc-title">Edição de Vídeos — Criativos</h2>
+          <p class="pc-desc">Briefing → análise de vídeos do cliente e concorrentes → criação (Seedence/CapCut ou manual) com regras de B-roll e narração → revisar → enviar.</p>
+          <div class="pc-meta">
+            <span class="pc-stat">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="10 8 16 12 10 16 10 8"/></svg>
+              Seedence / CapCut
+            </span>
+            <span class="pc-open">
+              Abrir
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </span>
+          </div>
+        </div>
+
+        <!-- CARD 6: Edição de Vídeos de Conteúdos -->
+        <div class="proc-card scroll-bottom delay-2" onclick="openPopup('vidcont')">
+          <div class="pc-top">
+            <div class="pc-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+            </div>
+            <span class="pc-badge">5 etapas</span>
+          </div>
+          <h2 class="pc-title">Edição de Vídeos — Conteúdos</h2>
+          <p class="pc-desc">Briefing → análise de desempenho dos vídeos → criação com regras de B-roll, narração e estilo → revisar → enviar.</p>
+          <div class="pc-meta">
+            <span class="pc-stat">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="10 8 16 12 10 16 10 8"/></svg>
+              Gemini Omni
+            </span>
+            <span class="pc-open">
+              Abrir
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- CATEGORIA: PROMPTS -->
+    <div class="cat-block" id="cat-prompts">
+      <div class="soon-card scroll-scale">
+        <div class="soon-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        </div>
+        <span class="soon-pill">Em breve</span>
+        <h2 class="soon-title">Biblioteca de Prompts</h2>
+        <p class="soon-sub">Estamos organizando e documentando todos os prompts usados internamente. Em breve disponível aqui.</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer class="page-footer">
+  <div class="page-wrap">
+    <div class="footer-inner">
+      <span class="footer-copy">© 2025 MAK Drive — Uso interno</span>
+      <svg class="footer-logo" viewBox="0 0 402 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <g clip-path="url(#fc)"><path d="M0.524658 93.4085V31.2669H12.2988V93.4085H0.524658ZM42.5192 93.4085V55.8617C42.5192 51.2393 41.0801 47.6199 38.202 45.0034C35.4111 42.2997 31.8789 40.9478 27.6052 40.9478C24.7272 40.9478 22.1543 41.5584 19.8867 42.7793C17.619 44.0003 15.7875 45.7012 14.392 47.8815C12.9966 50.0618 12.2988 52.6783 12.2988 55.7311L7.45836 53.3761C7.45836 48.6665 8.46135 44.5672 10.4673 41.0787C12.5605 37.59 15.395 34.8863 18.9709 32.9675C22.5468 30.9616 26.5587 29.9585 31.0068 29.9585C35.3676 29.9585 39.2923 30.9179 42.781 32.8366C46.3569 34.7554 49.1478 37.4591 51.1537 40.9478C53.2469 44.4365 54.2934 48.5793 54.2934 53.3761V93.4085H42.5192ZM84.514 93.4085V55.8617C84.514 51.2393 83.075 47.6199 80.1966 45.0034C77.4057 42.2997 73.9173 40.9478 69.7308 40.9478C66.8527 40.9478 64.2361 41.5584 61.8814 42.7793C59.6137 44.0003 57.7821 45.7012 56.3868 47.8815C54.9912 50.0618 54.2934 52.6783 54.2934 55.7311L47.6216 53.3761C47.8832 48.5793 49.1478 44.48 51.4153 41.0787C53.7703 37.59 56.7793 34.8863 60.4421 32.9675C64.1052 30.9616 68.1173 29.9585 72.4782 29.9585C77.0135 29.9585 81.0688 30.9179 84.6447 32.8366C88.2206 34.7554 91.0552 37.4591 93.1484 40.9478C95.3287 44.4365 96.4189 48.6227 96.4189 53.507V93.4085H84.514ZM133.634 94.7166C127.965 94.7166 122.82 93.3213 118.197 90.5301C113.575 87.652 109.911 83.7711 107.208 78.8868C104.592 74.0028 103.283 68.5081 103.283 62.4029C103.283 56.2979 104.592 50.8033 107.208 45.919C109.911 41.035 113.531 37.1538 118.066 34.2757C122.689 31.3976 127.878 29.9585 133.634 29.9585C138.344 29.9585 142.531 30.9616 146.194 32.9675C149.944 34.8863 152.953 37.59 155.22 41.0787C157.488 44.48 158.753 48.4483 159.014 52.9836V71.6916C158.753 76.1396 157.488 80.108 155.22 83.5965C153.04 87.0852 150.075 89.8326 146.325 91.8385C142.661 93.7573 138.431 94.7166 133.634 94.7166ZM135.597 83.5965C141.44 83.5965 146.15 81.6343 149.726 77.7096C153.302 73.6975 155.09 68.5953 155.09 62.4029C155.09 58.1295 154.261 54.4227 152.604 51.283C151.034 48.0559 148.766 45.5702 145.801 43.8259C142.836 41.9943 139.391 41.0787 135.466 41.0787C131.541 41.0787 128.053 41.9943 125 43.8259C122.035 45.6574 119.68 48.1868 117.935 51.4136C116.278 54.5536 115.45 58.1729 115.45 62.2723C115.45 66.4585 116.278 70.1653 117.935 73.3922C119.68 76.5321 122.078 79.0177 125.131 80.8493C128.183 82.6808 131.672 83.5965 135.597 83.5965ZM154.305 93.4085V76.6628L156.529 61.4873L154.305 46.4424V31.2669H166.21V93.4085H154.305ZM216.581 93.4085L187.538 61.6182L216.32 31.2669H230.579L198.527 64.7579L199.051 57.9551L231.757 93.4085H216.581ZM176.811 93.4085V-0.000244141H188.585V93.4085H176.811Z" fill="url(#fg)"/></g>
+        <defs><linearGradient id="fg" x1="0" y1="34" x2="233" y2="95" gradientUnits="userSpaceOnUse"><stop stop-color="#925CFF"/><stop offset="1" stop-color="#5B5FDA"/></linearGradient><clipPath id="fc"><rect width="402" height="95.0676" fill="white"/></clipPath></defs>
+      </svg>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!--  POPUPS                                                 -->
+<!-- ═══════════════════════════════════════════════════════ -->
+
+  <symbol id="ico-img" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+  <symbol id="ico-vid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+  <symbol id="ico-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+  <symbol id="ico-link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+</defs></svg>
+
+<!-- ── POPUP: COPY CRIATIVOS ── -->
+<div class="popup-overlay" id="popup-cria" onclick="closePopupOut(event,'popup-cria')">
+  <div class="popup">
+    <div class="popup-header">
+      <div class="popup-header-left">
+        <div class="popup-hicon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+        <div><div class="popup-htitle">Copy de Criativos</div><div class="popup-hsub">10 etapas · Tráfego pago · Anúncios</div></div>
+      </div>
+      <button class="popup-close" onclick="closePopup('popup-cria')">✕</button>
+    </div>
+    <div class="popup-body">
+
+      <div class="gb-rules-intro">
+        <div class="gb-rules-title">Regras Gerais</div>
+        <div class="gb-rules-item"><div class="gb-rules-dot"></div><span>Siga essas etapas SEMPRE, mesmo em tarefas simples. Com o tempo se torna automático e ágil.</span></div>
+        <div class="gb-rules-item"><div class="gb-rules-dot"></div><span>Nomeie todos os materiais (chats, docs, arquivos) de forma didática — isso interfere nos processos da equipe.</span></div>
+        <div class="gb-rules-item"><div class="gb-rules-dot"></div><span>Todo material tem um objetivo. Isso deve ser levado em consideração antes de tudo.</span></div>
+        <div class="gb-rules-item"><div class="gb-rules-dot"></div><span>Sempre use as IAs na conta da MAK — acesso via Gmail: <strong>contato.makdrive@gmail.com</strong></span></div>
+      </div>
+
+      <div class="gb-divider"><div class="gb-divider-line"></div><span class="gb-divider-label">Etapas</span><div class="gb-divider-line"></div></div>
+
+      <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">01</div><span class="gb-step-title">Coleta do Briefing</span></div><div class="gb-step-body"><p class="gb-step-desc">Colete o briefing da tarefa no ClickUp e verifique se os itens fundamentais foram enviados:</p><div class="gb-list"><div class="gb-list-item"><div class="gb-list-dot"></div>Objetivo da campanha</div><div class="gb-list-item"><div class="gb-list-dot"></div>Produto / Serviço que será vendido</div><div class="gb-list-item"><div class="gb-list-dot"></div>Linha de comunicação e posicionamento</div><div class="gb-list-item"><div class="gb-list-dot"></div>Apontamentos específicos do cliente</div></div><div class="gb-obs"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><p class="gb-obs-text">Se algo estiver faltando ou não estiver claro, solicite antes de continuar.</p></div></div></div>
+
+      <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">02</div><span class="gb-step-title">Análise de criativos próprios</span></div><div class="gb-step-body"><p class="gb-step-desc">Solicite à equipe de tráfego os <strong>criativos campeões</strong> — os que geraram mais leads e mais vendas. Use esses como referência base.</p></div></div>
+
+      <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">03</div><span class="gb-step-title">Análise de criativos concorrentes</span></div><div class="gb-step-body"><p class="gb-step-desc">Analise criativos de outras empresas. Identifique padrões nos criativos que estão rodando há bastante tempo (sinal de que dão resultado).</p><a class="gb-tool-link" href="https://www.facebook.com/ads/library" target="_blank"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Ad Library — Facebook</a><a class="gb-tool-link" href="https://app.adspy.com/ads" target="_blank" style="margin-left:6px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Ad Spy</a></div></div>
+
+      <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">04</div><span class="gb-step-title">Análise de datas</span></div><div class="gb-step-body"><p class="gb-step-desc">Use o Gem personalizado do Gemini para datas comemorativas relevantes ao cliente. Após criar o chat, nomeie como <strong>"Análise de Datas - [Cliente]"</strong>.</p><a class="gb-tool-link" href="https://gemini.google.com/gem/1kBRRmnY2Y7lUNeuR6LqdzLYXM2fFMk04" target="_blank"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Gem de Datas — Gemini</a>
+        <div class="prompt-box">
+          <div class="prompt-box-label"><span class="prompt-box-tag">✦ Prompt — Gemini Datas</span><button class="copy-btn" onclick="copyMsg(this,`- Nome da empresa / profissional: [Nome aqui…]\n- Área de atuação: [Ex: Clínica estética, Loja de Colchões, etc…]\n- Público-alvo: [Ex: Mulheres 30+ de renda alta…]\n- Comunicação: [Ex: Leve - Séria - Descontraída…]\n- Período de análise: [Ex: Julho de 2026]\n- Cidade / Estado: [Ex: Porto Alegre - RS…]`)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copiar</button></div>
+          <div class="prompt-text">- Nome da empresa / profissional: [Nome aqui…]
+- Área de atuação: [Ex: Clínica estética, Loja de Colchões, etc…]
+- Público-alvo: [Ex: Mulheres 30+ de renda alta…]
+- Comunicação: [Ex: Leve - Séria - Descontraída…]
+- Período de análise: [Ex: Julho de 2026]
+- Cidade / Estado: [Ex: Porto Alegre - RS…]</div>
+        </div>
+      </div></div>
+
+      <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">05</div><span class="gb-step-title">Análise de Trends</span></div><div class="gb-step-body"><p class="gb-step-desc">Analise trends do momento e veja o que pode ser adaptado ao cliente. Use 4 métodos:</p><div class="gb-list"><div class="gb-list-item"><div class="gb-list-dot"></div>Salvar referências no dia a dia sempre que encontrar algo relevante</div><div class="gb-list-item"><div class="gb-list-dot"></div>Pesquisar palavras e hashtags chave (4–5) no TikTok e Instagram — analisar posts com mais visualizações</div><div class="gb-list-item"><div class="gb-list-dot"></div>Perfil "zerado" no TikTok → lupa → rolar até "Trending Searches"</div><div class="gb-list-item"><div class="gb-list-dot"></div>Google Trends — pesquisas dos últimos 7 dias</div></div><a class="gb-tool-link" href="https://trends.google.com.br/trending?geo=BR&status=active&hours=168" target="_blank"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Google Trends — últimas 168h</a></div></div>
+
+      <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">06</div><span class="gb-step-title">Brainstorm — Claude</span></div><div class="gb-step-body"><p class="gb-step-desc">No Claude, inicie um chat no projeto <strong>"Copy Maker"</strong> e nomeie como <strong>"C&C - [Cliente]"</strong>. Anexe os dados das etapas anteriores. Criativos em imagem → direto na mensagem. Vídeos → transcreva pelo Gem e anexe em doc.</p><a class="gb-tool-link" href="https://gemini.google.com/gem/1WI0lAiNN78cgm3rAquFUI0EQ-7ZYAnF2" target="_blank"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Gem transcrição de vídeos</a>
+        <div class="prompt-box">
+          <div class="prompt-box-label"><span class="prompt-box-tag">✦ Prompt — Brainstorm (Claude)</span><button class="copy-btn" onclick="copyMsg(this,`Vamos realizar um brainstorm para um cliente, ou seja, irei enviar a você uma série de dados levantados para esse cliente junto com seus dados gerais, e quero que me envie ideias estratégicas de criativos para tráfego pago que podemos criar…\n\n- Nome da empresa / profissional: [Nome aqui…]\n- Objetivo dos criativos: [Objetivos aqui…]\n- Área de atuação: [Aqui pode responder de forma profunda…]\n- Direcionamento geral: [Contexto da empresa, momento, etc…]\n- Público-alvo: [Aqui pode responder de forma profunda…]\n- Cidade / Estado: [Ex: Porto Alegre - RS…]\n- Linha de comunicação: [Aqui pode responder de forma profunda…]\n[Observações extras, se houver…]\n\nAnexei aqui nessa mensagem também uma série de dados, pesquisas, análises de datas e criativos deste mesmo cliente e de concorrentes que tiveram bom desempenho. Baseado nisso, gere um brainstorm de ideias para criativos para criarmos, sem se aprofundar muito, apenas as ideias… Analise tudo com calma e pense de forma estratégica…`)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copiar</button></div>
+          <div class="prompt-text">Vamos realizar um brainstorm para um cliente, ou seja, irei enviar a você uma série de dados levantados para esse cliente junto com seus dados gerais, e quero que me envie ideias estratégicas de criativos para tráfego pago que podemos criar…
+
+- Nome da empresa / profissional: [Nome aqui…]
+- Objetivo dos criativos: [Objetivos aqui…]
+- Área de atuação: [Aqui pode responder de forma profunda…]
+- Direcionamento geral: [Contexto da empresa, momento, etc…]
+- Público-alvo: [Aqui pode responder de forma profunda…]
+- Cidade / Estado: [Ex: Porto Alegre - RS…]
+- Linha de comunicação: [Aqui pode responder de forma profunda…]
+
+Anexei aqui nessa mensagem também uma série de dados, pesquisas, análises de datas e criativos deste mesmo cliente e de concorrentes que tiveram bom desempenho. Baseado nisso, gere um brainstorm de ideias para criativos para criarmos, sem se aprofundar muito, apenas as ideias…</div>
+        </div>
+      </div></div>
+
+      <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">07</div><span class="gb-step-title">Criação — Claude</span></div><div class="gb-step-body"><p class="gb-step-desc">No mesmo chat da etapa 06, realize a criação dos criativos de fato baseado em tudo levantado. Siga o <strong>naming padrão MAK</strong>.</p>
+        <div class="naming-box"><div class="naming-title">Naming padrão MAK</div><div class="naming-row"><span class="naming-pill">Conteúdos: CT01, CT02…</span><span class="naming-pill">Criativos: AD01, AD02…</span><span class="naming-pill">C/C: ADCT01, ADCT02…</span></div></div>
+        <div class="prompt-box" style="margin-top:11px">
+          <div class="prompt-box-label"><span class="prompt-box-tag">✦ Prompt — Criação (Claude)</span><button class="copy-btn" onclick="copyMsg(this,`Vamos agora realizar a criação dos criativos de fato, seguindo a seguinte estrutura e levando em conta os dados do cliente passados acima de forma estratégica e feita com perfeição:\n\n[Aqui cole a estrutura indicando quantos posts devem ser feitos, o direcionamento e tema de cada um, e o tipo: vídeo, post, carrossel, etc…]`)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copiar</button></div>
+          <div class="prompt-text">Vamos agora realizar a criação dos criativos de fato, seguindo a seguinte estrutura e levando em conta os dados do cliente passados acima de forma estratégica e feita com perfeição:
+
+[Aqui cole a estrutura indicando quantos posts devem ser feitos, o direcionamento e tema de cada um, e o tipo: vídeo, post, carrossel, etc…]</div>
+        </div>
+      </div></div>
+
+      <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">08</div><span class="gb-step-title">Embelezar</span></div><div class="gb-step-body"><p class="gb-step-desc">Com os textos em mãos, aplique no template padrão da MAK.</p><a class="gb-tool-link" href="https://docs.google.com/document/d/1q61uuayMNTQrFhvOSn5E4bFFgTsJ_YaC/edit" target="_blank"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Template de Criativos — Google Docs</a></div></div>
+
+      <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">09</div><span class="gb-step-title">Revisar</span></div><div class="gb-step-body"><p class="gb-step-desc">Se possível aguarde algumas horas e revise com olho fresco, ou revise na hora mesmo para garantir que nada passou batido.</p></div></div>
+
+      <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">10</div><span class="gb-step-title">Enviar para aprovação</span></div><div class="gb-step-body"><p class="gb-step-desc">Após tudo feito e revisado, envie para aprovação via ClickUp.</p></div></div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── POPUP: COPY CONTEÚDOS ── -->
+<div class="popup-overlay" id="popup-cont" onclick="closePopupOut(event,'popup-cont')">
+  <div class="popup">
+    <div class="popup-header">
+      <div class="popup-header-left">
+        <div class="popup-hicon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+        <div><div class="popup-htitle">Copy de Conteúdos</div><div class="popup-hsub">11 etapas · Orgânico · Instagram</div></div>
+      </div>
+      <button class="popup-close" onclick="closePopup('popup-cont')">✕</button>
+    </div>
+    <div class="popup-body">
+      <div class="gb-rules-intro">
+        <div class="gb-rules-title">Regras Gerais</div>
+        <div class="gb-rules-item"><div class="gb-rules-dot"></div><span>Siga essas etapas SEMPRE, mesmo em tarefas simples.</span></div>
+        <div class="gb-rules-item"><div class="gb-rules-dot"></div><span>Nomeie todos os materiais de forma didática — isso interfere nos processos da equipe.</span></div>
+        <div class="gb-rules-item"><div class="gb-rules-dot"></div><span>Todo material tem um objetivo. Leve isso em consideração antes de tudo.</span></div>
+        <div class="gb-rules-item"><div class="gb-rules-dot"></div><span>Use sempre as IAs na conta da MAK: <strong>contato.makdrive@gmail.com</strong></span></div>
+      </div>
+      <div class="gb-divider"><div class="gb-divider-line"></div><span class="gb-divider-label">Etapas</span><div class="gb-divider-line"></div></div>
+
+      <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">01</div><span class="gb-step-title">Coleta do Briefing</span></div><div class="gb-step-body"><p class="gb-step-desc">Colete o briefing da tarefa no ClickUp. Itens fundamentais:</p><div class="gb-list"><div class="gb-list-item"><div class="gb-list-dot"></div>Objetivo das copys</div><div class="gb-list-item"><div class="gb-list-dot"></div>Linha de comunicação e posicionamento</div><div class="gb-list-item"><div class="gb-list-dot"></div>Apontamentos específicos do cliente</div></div></div></div>
+
+      <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">02</div><span class="gb-step-title">Análise de desempenho</span></div><div class="gb-step-body"><p class="gb-step-desc">Analise os posts dos últimos 30 dias no Instagram do cliente. Colete os dados:</p><div class="gb-list"><div class="gb-list-item"><div class="gb-list-dot"></div>Qual teve mais visualizações</div><div class="gb-list-item"><div class="gb-list-dot"></div>Maior taxa de engajamento (Vis. vs. Curtidas + Comentários)</div><div class="gb-list-item"><div class="gb-list-dot"></div>Mais curtidas e mais comentários</div></div>
+        <div class="gb-obs"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><p class="gb-obs-text">Pode usar a extensão <strong>Sort Feed</strong> (Chrome) ou Claude in Chrome com o prompt abaixo. Configure a extensão como "Agir sem perguntar".</p></div>
+        <div class="prompt-box">
+          <div class="prompt-box-label"><span class="prompt-box-tag">✦ Prompt — Claude in Chrome (Instagram aberto)</span><button class="copy-btn" onclick="copyMsg(this,`Faça uma análise do instagram na tela levando em consideração os posts feitos nos últimos 30 dias…\n\nAnalise quais deles tiveram mais destaque nos seguintes dados:\n- Qual teve + visualizações\n- Qual teve maior taxa de engajamento (Visualizações vs. Soma de Curtidas + Comentários)\n- Qual teve mais curtidas\n- Qual teve mais comentários\n\nAnalise usando artifício de prints para captar os números dessas métricas. Após isso, me envie uma lista com cada um, e após isso analise e me envie insights de possíveis padrões encontrados entre esses conteúdos, e uma análise unitária de cada conteúdo que se destacou…`)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copiar</button></div>
+          <div class="prompt-text">Faça uma análise do instagram na tela levando em consideração os posts feitos nos últimos 30 dias…
+
+Analise quais deles tiveram mais destaque nos seguintes dados:
+- Qual teve + visualizações
+- Qual teve maior taxa de engajamento (Vis. vs. Curtidas + Comentários)
+- Qual teve mais curtidas
+- Qual teve mais comentários
+
+Após isso, me envie insights de possíveis padrões encontrados entre esses conteúdos, e uma análise unitária de cada conteúdo que se destacou…</div>
+        </div>
+      </div></div>
+
+      <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">03</div><span class="gb-step-title">Análise de concorrentes</span></div><div class="gb-step-body"><p class="gb-step-desc">Defina os 3 principais concorrentes (pode perguntar diretamente ao cliente) e realize a mesma análise da etapa 02, porém apenas dos últimos 15 dias. Não precisa necessariamente ser com os 3 — faça com 1 ou 2 se precisar otimizar o tempo.</p></div></div>
+
+      <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">04</div><span class="gb-step-title">Análise de datas</span></div><div class="gb-step-body"><p class="gb-step-desc">Use o Gem de datas do Gemini. Nomeie o chat como <strong>"Análise de Datas - [Cliente]"</strong>. Serve para criativos e conteúdos.</p><a class="gb-tool-link" href="https://gemini.google.com/gem/1kBRRmnY2Y7lUNeuR6LqdzLYXM2fFMk04" target="_blank"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Gem de Datas — Gemini</a>
+        <div class="prompt-box">
+          <div class="prompt-box-label"><span class="prompt-box-tag">✦ Prompt — Gemini Datas</span><button class="copy-btn" onclick="copyMsg(this,`- Nome da empresa / profissional: [Nome aqui…]\n- Área de atuação: [Ex: Clínica estética, Loja de Colchões, etc…]\n- Público-alvo: [Ex: Mulheres 30+ de renda alta…]\n- Comunicação: [Ex: Leve - Séria - Descontraída…]\n- Período de análise: [Ex: Julho de 2026]\n- Cidade / Estado: [Ex: Porto Alegre - RS…]`)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copiar</button></div>
+          <div class="prompt-text">- Nome da empresa / profissional: [Nome aqui…]
+- Área de atuação: [Ex: Clínica estética, Loja de Colchões, etc…]
+- Público-alvo: [Ex: Mulheres 30+ de renda alta…]
+- Comunicação: [Ex: Leve - Séria - Descontraída…]
+- Período de análise: [Ex: Julho de 2026]
+- Cidade / Estado: [Ex: Porto Alegre - RS…]</div>
+        </div>
+      </div></div>
+
+      <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">05</div><span class="gb-step-title">Análise de notícias</span></div><div class="gb-step-body"><p class="gb-step-desc">Analise notícias relevantes dos últimos 15 dias que possam ser usadas para gerar conteúdos para o cliente.</p>
+        <div class="prompt-box">
+          <div class="prompt-box-label"><span class="prompt-box-tag">✦ Prompt — Claude ou Manus</span><button class="copy-btn" onclick="copyMsg(this,`Faça uma análise completa na internet de notícias que tenham saído nos últimos 15 dias que sejam de alguma maneira relevantes para a empresa descrita abaixo e seu público, para que usemos isso para gerar conteúdos…\n\n- Nome da empresa / profissional: [Nome aqui…]\n- Área de atuação: [Ex: Clínica estética, Loja de Colchões, etc…]\n- Público-alvo: [Ex: Mulheres 30+ de renda alta…]\n- Cidade / Estado: [Ex: Porto Alegre - RS…]\n\nAnalise usando artifício de pesquisa direta no Google Chrome… Após isso, gere uma lista descrevendo as notícias relevantes e suas fontes de pesquisa…`)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copiar</button></div>
+          <div class="prompt-text">Faça uma análise completa na internet de notícias que tenham saído nos últimos 15 dias que sejam de alguma maneira relevantes para a empresa descrita abaixo e seu público, para que usemos isso para gerar conteúdos…
+
+- Nome da empresa / profissional: [Nome aqui…]
+- Área de atuação: [Ex: Clínica estética, Loja de Colchões, etc…]
+- Público-alvo: [Ex: Mulheres 30+ de renda alta…]
+- Cidade / Estado: [Ex: Porto Alegre - RS…]
+
+Após isso, gere uma lista descrevendo as notícias relevantes e suas fontes de pesquisa…</div>
+        </div>
+      </div></div>
+
+      <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">06</div><span class="gb-step-title">Análise de Trends</span></div><div class="gb-step-body"><p class="gb-step-desc">Analise trends atuais e adapte ao cliente. Mesmos 4 métodos do processo de Criativos. Se a análise foi feita recentemente para o mesmo cliente, pode reaproveitar.</p><a class="gb-tool-link" href="https://trends.google.com.br/trending?geo=BR&status=active&hours=168" target="_blank"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Google Trends — últimas 168h</a></div></div>
+
+      <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">07</div><span class="gb-step-title">Brainstorm — Claude</span></div><div class="gb-step-body"><p class="gb-step-desc">Chat no projeto <strong>"Copy Maker"</strong>, nomeado <strong>"C&C - [Cliente]"</strong>. Anexe as análises das etapas anteriores em doc. As etapas 05 e 06 (notícias e trends) encaixe na criação manualmente.</p>
+        <div class="prompt-box">
+          <div class="prompt-box-label"><span class="prompt-box-tag">✦ Prompt — Brainstorm (Claude)</span><button class="copy-btn" onclick="copyMsg(this,`Vamos realizar um brainstorm para um cliente, ou seja, irei enviar a você uma série de dados levantados para esse cliente junto com seus dados gerais, e quero que me envie ideias estratégicas de conteúdos que podemos criar…\n\n- Nome da empresa / profissional: [Nome aqui…]\n- Área de atuação: [Aqui pode responder de forma profunda…]\n- Direcionamento geral: [Contexto da empresa, momento, etc…]\n- Público-alvo: [Aqui pode responder de forma profunda…]\n- Cidade / Estado: [Ex: Porto Alegre - RS…]\n- Linha de comunicação: [Aqui pode responder de forma profunda…]\n[Observações extras, se houver…]\n\nAnexei aqui nessa mensagem também uma série de dados, pesquisas, análises de datas e itens em geral para o brainstorm. Baseado nisso, gere um brainstorm de ideias para conteúdos para criarmos, sem se aprofundar muito, apenas as ideias… Analise tudo com calma e pense de forma estratégica…`)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copiar</button></div>
+          <div class="prompt-text">Vamos realizar um brainstorm para um cliente, ou seja, irei enviar a você uma série de dados levantados para esse cliente junto com seus dados gerais, e quero que me envie ideias estratégicas de conteúdos que podemos criar…
+
+- Nome da empresa / profissional: [Nome aqui…]
+- Área de atuação: [Aqui pode responder de forma profunda…]
+- Direcionamento geral: [Contexto da empresa, momento, etc…]
+- Público-alvo: [Aqui pode responder de forma profunda…]
+- Cidade / Estado: [Ex: Porto Alegre - RS…]
+- Linha de comunicação: [Aqui pode responder de forma profunda…]
+
+Baseado nos dados anexados, gere um brainstorm de ideias para conteúdos para criarmos, sem se aprofundar muito, apenas as ideias…</div>
+        </div>
+      </div></div>
+
+      <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">08</div><span class="gb-step-title">Criação — Claude</span></div><div class="gb-step-body"><p class="gb-step-desc">No mesmo chat da etapa 07, crie os conteúdos de fato. Siga o <strong>naming padrão MAK</strong>.</p>
+        <div class="naming-box"><div class="naming-title">Naming padrão MAK</div><div class="naming-row"><span class="naming-pill">Conteúdos: CT01, CT02…</span><span class="naming-pill">Criativos: AD01, AD02…</span><span class="naming-pill">C/C: ADCT01, ADCT02…</span></div></div>
+        <div class="prompt-box" style="margin-top:11px">
+          <div class="prompt-box-label"><span class="prompt-box-tag">✦ Prompt — Criação (Claude)</span><button class="copy-btn" onclick="copyMsg(this,`Vamos agora realizar a criação dos conteúdos de fato, seguindo a seguinte estrutura e levando em conta os dados do cliente passados acima de forma estratégica e feita com perfeição:\n\n[Aqui cole a estrutura indicando quantos posts devem ser feitos, o direcionamento e tema de cada um, e o tipo: vídeo, post, carrossel, etc…]`)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copiar</button></div>
+          <div class="prompt-text">Vamos agora realizar a criação dos conteúdos de fato, seguindo a seguinte estrutura e levando em conta os dados do cliente passados acima de forma estratégica e feita com perfeição:
+
+[Aqui cole a estrutura indicando quantos posts devem ser feitos, o direcionamento e tema de cada um, e o tipo: vídeo, post, carrossel, etc…]</div>
+        </div>
+      </div></div>
+
+      <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">09</div><span class="gb-step-title">Embelezar</span></div><div class="gb-step-body"><p class="gb-step-desc">Com os textos em mãos, aplique no template padrão de conteúdos.</p><a class="gb-tool-link" href="https://docs.google.com/document/d/1TCXfRwoW7KyuPuxqsVjAUpVYsSvPENFG/edit" target="_blank"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Template de Conteúdos — Google Docs</a></div></div>
+
+      <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">10</div><span class="gb-step-title">Revisar</span></div><div class="gb-step-body"><p class="gb-step-desc">Se possível aguarde algumas horas e revise com olho fresco, ou revise na hora mesmo.</p></div></div>
+
+      <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">11</div><span class="gb-step-title">Enviar para aprovação</span></div><div class="gb-step-body"><p class="gb-step-desc">Após tudo feito e revisado, envie para aprovação via ClickUp.</p></div></div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── POPUP: DESIGN CRIATIVOS ── -->
+<div class="popup-overlay" id="popup-dsgcria" onclick="closePopupOut(event,'popup-dsgcria')">
+  <div class="popup">
+    <div class="popup-header">
+      <div class="popup-header-left">
+        <div class="popup-hicon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
+        <div><div class="popup-htitle">Design de Criativos</div><div class="popup-hsub">6 etapas · Imagem · Carrossel · Anúncios</div></div>
+      </div>
+      <button class="popup-close" onclick="closePopup('popup-dsgcria')">✕</button>
+    </div>
+    <div class="popup-body">
+      <div class="gb-rules-intro">
+        <div class="gb-rules-title">Regras Gerais</div>
+        <div class="gb-rules-item"><div class="gb-rules-dot"></div><span>Siga essas etapas SEMPRE. O processo de copy (C&C) já foi feito — aproveite as análises existentes.</span></div>
+        <div class="gb-rules-item"><div class="gb-rules-dot"></div><span>Use as IAs na conta da MAK: <strong>contato.makdrive@gmail.com</strong></span></div>
+      </div>
+      <div class="gb-divider"><div class="gb-divider-line"></div><span class="gb-divider-label">Etapas</span><div class="gb-divider-line"></div></div>
+
+      <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">01</div><span class="gb-step-title">Coleta do Briefing</span></div><div class="gb-step-body"><p class="gb-step-desc">Colete o briefing da tarefa no ClickUp. Itens fundamentais:</p><div class="gb-list"><div class="gb-list-item"><div class="gb-list-dot"></div>Objetivo dos criativos (no doc escrito como "objetivo")</div><div class="gb-list-item"><div class="gb-list-dot"></div>Linha de comunicação e posicionamento</div><div class="gb-list-item"><div class="gb-list-dot"></div>Materiais brutos necessários (fotos, etc…)</div><div class="gb-list-item"><div class="gb-list-dot"></div>Apontamentos específicos do cliente</div></div></div></div>
+
+      <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">02</div><span class="gb-step-title">Análise de desempenho do cliente</span></div><div class="gb-step-body"><p class="gb-step-desc">Use a análise já feita pela copy. Encontre o chat no Claude pelo nome <strong>"C&C - [Nome do cliente]"</strong> no projeto "Copy Maker".</p></div></div>
+
+      <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">03</div><span class="gb-step-title">Análise de desempenho de concorrentes</span></div><div class="gb-step-body"><p class="gb-step-desc">Use a análise já feita pela copy (chat "C&C - [Cliente]"). Se precisar fazer análise própria:</p><a class="gb-tool-link" href="https://www.facebook.com/ads/library" target="_blank"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Ad Library — Facebook</a><a class="gb-tool-link" href="https://app.adspy.com/ads" target="_blank" style="margin-left:6px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Ad Spy</a></div></div>
+
+      <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">04</div><span class="gb-step-title">Criação</span></div><div class="gb-step-body"><p class="gb-step-desc"><strong>Usando IA:</strong> ChatGPT ou Design Builder, enviando referências coletadas nas etapas anteriores.<br><strong>Manual:</strong> Seguindo as referências coletadas.</p>
+        <div class="gb-obs" style="margin-top:10px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><p class="gb-obs-text"><strong>3 pontos cruciais de criação (nessa ordem):</strong> 1. Objetivo do criativo · 2. Público (velho = letras maiores / feminino = mais delicado) · 3. Referências coletadas. Equilibre os 3 com a IDV do cliente.</p></div>
+        <div class="gb-divider" style="margin:16px 0 12px"><div class="gb-divider-line"></div><span class="gb-divider-label">Prompts para gerar imagem do cliente</span><div class="gb-divider-line"></div></div>
+        <div class="prompt-box">
+          <div class="prompt-box-label"><span class="prompt-box-tag">✦ Passo 1 — ChatGPT (anexe foto de modelo na posição desejada)</span><button class="copy-btn" onclick="copyMsg(this,'Desenvolva um prompt para gerar uma imagem exatamente como essa, prompt extremamente detalhado de mais de 3000 caracteres. não cite absolutamente nada sobre o rosto, cabelo. Sobre todo o resto seja minucioso. Quando for se referir ao sujeito, diga PERSON')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copiar</button></div>
+          <div class="prompt-text">Desenvolva um prompt para gerar uma imagem exatamente como essa, prompt extremamente detalhado de mais de 3000 caracteres. não cite absolutamente nada sobre o rosto, cabelo. Sobre todo o resto seja minucioso. Quando for se referir ao sujeito, diga PERSON</div>
+        </div>
+        <div class="prompt-box" style="margin-top:8px">
+          <div class="prompt-box-label"><span class="prompt-box-tag">✦ Passo 2 — Gemini (anexe grade 4–6 fotos do cliente em ângulos diferentes)</span><button class="copy-btn" onclick="copyMsg(this,`Crie uma imagem estilo retrato realista em alta resolução, 4k, ultra sharp, extremamente detalhada, qualidade DSLR profissional de um homem, que me referirei como PERSON durante o detalhamento. O rosto é o da pessoa na imagem anexa, mantenha exatamente todos os detalhes, cada traço facial, olhos, formato, tom de pele, não altere absolutamente nada desse rosto. Para o restante da imagem considere essas informações abaixo:\n\n[COLE A RESPOSTA DO ChatGPT AQUI]`)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copiar</button></div>
+          <div class="prompt-text">Crie uma imagem estilo retrato realista em alta resolução, 4k, ultra sharp, extremamente detalhada, qualidade DSLR profissional de um homem, que me referirei como PERSON durante o detalhamento. O rosto é o da pessoa na imagem anexa, mantenha exatamente todos os detalhes, cada traço facial, olhos, formato, tom de pele, não altere absolutamente nada desse rosto. Para o restante da imagem considere essas informações abaixo:
+
+[COLE A RESPOSTA DO ChatGPT AQUI]</div>
+        </div>
+      </div></div>
+
+      <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">05</div><span class="gb-step-title">Revisar</span></div><div class="gb-step-body"><p class="gb-step-desc">Se possível aguarde algumas horas e revise com olho fresco, ou revise na hora mesmo.</p></div></div>
+
+      <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">06</div><span class="gb-step-title">Enviar para aprovação</span></div><div class="gb-step-body"><p class="gb-step-desc">Envie para aprovação via ClickUp seguindo o naming padrão.</p>
+        <div class="naming-box" style="margin-top:10px"><div class="naming-title">Naming padrão MAK</div><div class="naming-row"><span class="naming-pill">CT01, CT02…</span><span class="naming-pill">AD01, AD02…</span><span class="naming-pill">ADCT01, ADCT02…</span></div></div>
+        <div class="gb-obs" style="margin-top:10px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><p class="gb-obs-text">Se o doc de copy for até CT08 e houver um extra, o próximo será CT09 — continue a sequência existente.</p></div>
+      </div></div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── POPUP: DESIGN CONTEÚDOS ── -->
+<div class="popup-overlay" id="popup-dsgcont" onclick="closePopupOut(event,'popup-dsgcont')">
+  <div class="popup">
+    <div class="popup-header">
+      <div class="popup-header-left">
+        <div class="popup-hicon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
+        <div><div class="popup-htitle">Design de Conteúdos</div><div class="popup-hsub">6 etapas · Imagem · Carrossel · Instagram</div></div>
+      </div>
+      <button class="popup-close" onclick="closePopup('popup-dsgcont')">✕</button>
+    </div>
+    <div class="popup-body">
+      <div class="gb-rules-intro">
+        <div class="gb-rules-title">Regras Gerais</div>
+        <div class="gb-rules-item"><div class="gb-rules-dot"></div><span>Siga essas etapas SEMPRE. O processo de copy (C&C) já fornece as análises — reuse-as.</span></div>
+        <div class="gb-rules-item"><div class="gb-rules-dot"></div><span>Use as IAs na conta da MAK: <strong>contato.makdrive@gmail.com</strong></span></div>
+      </div>
+      <div class="gb-divider"><div class="gb-divider-line"></div><span class="gb-divider-label">Etapas</span><div class="gb-divider-line"></div></div>
+
+      <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">01</div><span class="gb-step-title">Coleta do Briefing</span></div><div class="gb-step-body"><p class="gb-step-desc">Colete o briefing da tarefa no ClickUp. Itens fundamentais:</p><div class="gb-list"><div class="gb-list-item"><div class="gb-list-dot"></div>Objetivo dos posts (no doc escrito como "direcionamento")</div><div class="gb-list-item"><div class="gb-list-dot"></div>Linha de comunicação e posicionamento</div><div class="gb-list-item"><div class="gb-list-dot"></div>Materiais brutos necessários (fotos, etc…)</div></div></div></div>
+
+      <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">02</div><span class="gb-step-title">Análise de desempenho</span></div><div class="gb-step-body"><p class="gb-step-desc">Analise posts em imagem/carrossel dos últimos 30 dias no Instagram. Use a análise já feita pela copy — chat <strong>"C&C - [Nome do cliente]"</strong> no projeto "Copy Maker". Identifique padrões como: posts com determinada pessoa tendem a gerar mais engajamento, etc.</p></div></div>
+
+      <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">03</div><span class="gb-step-title">Definir padrão (Plano Performance)</span></div><div class="gb-step-body"><p class="gb-step-desc">Apenas para clientes do Plano Performance. Na 1ª vez, defina um padrão visual baseado na estrutura: <strong>imagem de fundo + texto em sobreposição com fade</strong>.</p><div class="gb-obs"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><p class="gb-obs-text">Para clientes com plano orgânico ou completo, <strong>pule essa etapa</strong>.</p></div><a class="gb-tool-link" href="https://www.instagram.com/p/DYU6IMgkhcY/?img_index=1" target="_blank"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Referência 1</a><a class="gb-tool-link" href="https://www.instagram.com/p/DYxftISlnCz/?img_index=1" target="_blank" style="margin-left:6px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Referência 2</a></div></div>
+
+      <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">04</div><span class="gb-step-title">Criação</span></div><div class="gb-step-body"><p class="gb-step-desc"><strong>Plano Performance:</strong> crie baseado no modelo padrão definido na etapa 03.<br><strong>Plano Completo ou Orgânico:</strong> crie de forma mais profunda baseado em estratégias de design e no briefing do cliente.</p>
+        <div class="gb-obs" style="margin-top:10px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><p class="gb-obs-text"><strong>3 pontos cruciais (nessa ordem):</strong> 1. Objetivo/direcionamento · 2. Público (velho = letras maiores / feminino = mais delicado) · 3. Estilo e comunicação do cliente. Equilibre com a IDV.</p></div>
+        <div class="gb-divider" style="margin:16px 0 12px"><div class="gb-divider-line"></div><span class="gb-divider-label">Prompts para gerar imagem do cliente</span><div class="gb-divider-line"></div></div>
+        <div class="prompt-box">
+          <div class="prompt-box-label"><span class="prompt-box-tag">✦ Passo 1 — ChatGPT (foto de modelo na posição desejada)</span><button class="copy-btn" onclick="copyMsg(this,'Desenvolva um prompt para gerar uma imagem exatamente como essa, prompt extremamente detalhado de mais de 3000 caracteres. não cite absolutamente nada sobre o rosto, cabelo. Sobre todo o resto seja minucioso. Quando for se referir ao sujeito, diga PERSON')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copiar</button></div>
+          <div class="prompt-text">Desenvolva um prompt para gerar uma imagem exatamente como essa, prompt extremamente detalhado de mais de 3000 caracteres. não cite absolutamente nada sobre o rosto, cabelo. Sobre todo o resto seja minucioso. Quando for se referir ao sujeito, diga PERSON</div>
+        </div>
+        <div class="prompt-box" style="margin-top:8px">
+          <div class="prompt-box-label"><span class="prompt-box-tag">✦ Passo 2 — Gemini (grade 4–6 fotos do cliente)</span><button class="copy-btn" onclick="copyMsg(this,`Crie uma imagem estilo retrato realista em alta resolução, 4k, ultra sharp, extremamente detalhada, qualidade DSLR profissional de um homem, que me referirei como PERSON durante o detalhamento. O rosto é o da pessoa na imagem anexa, mantenha exatamente todos os detalhes, cada traço facial, olhos, formato, tom de pele, não altere absolutamente nada desse rosto. Para o restante da imagem considere essas informações abaixo:\n\n[COLE A RESPOSTA DO ChatGPT AQUI]`)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copiar</button></div>
+          <div class="prompt-text">Crie uma imagem estilo retrato realista em alta resolução, 4k, ultra sharp, extremamente detalhada, qualidade DSLR profissional de um homem, que me referirei como PERSON durante o detalhamento. O rosto é o da pessoa na imagem anexa, mantenha exatamente todos os detalhes, cada traço facial, olhos, formato, tom de pele, não altere absolutamente nada desse rosto. Para o restante da imagem considere essas informações abaixo:
+
+[COLE A RESPOSTA DO ChatGPT AQUI]</div>
+        </div>
+      </div></div>
+
+      <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">05</div><span class="gb-step-title">Revisar</span></div><div class="gb-step-body"><p class="gb-step-desc">Se possível aguarde algumas horas e revise com olho fresco, ou revise na hora mesmo.</p></div></div>
+
+      <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">06</div><span class="gb-step-title">Enviar para aprovação</span></div><div class="gb-step-body"><p class="gb-step-desc">Envie para aprovação via ClickUp seguindo o naming padrão.</p>
+        <div class="naming-box" style="margin-top:10px"><div class="naming-title">Naming padrão MAK</div><div class="naming-row"><span class="naming-pill">CT01, CT02…</span><span class="naming-pill">AD01, AD02…</span><span class="naming-pill">ADCT01, ADCT02…</span></div></div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── POPUP: VÍDEOS CRIATIVOS ── -->
+<div class="popup-overlay" id="popup-vidcria" onclick="closePopupOut(event,'popup-vidcria')">
+  <div class="popup">
+    <div class="popup-header">
+      <div class="popup-header-left">
+        <div class="popup-hicon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg></div>
+        <div><div class="popup-htitle">Edição de Vídeos — Criativos</div><div class="popup-hsub">6 etapas · Anúncios em vídeo · Tráfego pago</div></div>
+      </div>
+      <button class="popup-close" onclick="closePopup('popup-vidcria')">✕</button>
+    </div>
+    <div class="popup-body">
+      <div class="gb-rules-intro">
+        <div class="gb-rules-title">Regras Gerais</div>
+        <div class="gb-rules-item"><div class="gb-rules-dot"></div><span>Siga essas etapas SEMPRE. O processo de copy (C&C) já contém análises que podem ser reutilizadas.</span></div>
+        <div class="gb-rules-item"><div class="gb-rules-dot"></div><span>Use as IAs na conta da MAK: <strong>contato.makdrive@gmail.com</strong></span></div>
+      </div>
+      <div class="gb-divider"><div class="gb-divider-line"></div><span class="gb-divider-label">Etapas</span><div class="gb-divider-line"></div></div>
+
+      <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">01</div><span class="gb-step-title">Coleta do Briefing</span></div><div class="gb-step-body"><p class="gb-step-desc">Itens fundamentais no briefing do ClickUp:</p><div class="gb-list"><div class="gb-list-item"><div class="gb-list-dot"></div>Objetivo dos criativos (no doc escrito como "objetivo")</div><div class="gb-list-item"><div class="gb-list-dot"></div>Linha de comunicação e posicionamento</div><div class="gb-list-item"><div class="gb-list-dot"></div>Materiais brutos necessários (vídeos, fotos, etc…)</div></div></div></div>
+
+      <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">02</div><span class="gb-step-title">Análise de desempenho do cliente</span></div><div class="gb-step-body"><p class="gb-step-desc">Use a análise já feita pela copy dos criativos em vídeo com bom desempenho. Chat <strong>"C&C - [Nome do cliente]"</strong> no projeto "Copy Maker".</p></div></div>
+
+      <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">03</div><span class="gb-step-title">Análise de desempenho de concorrentes</span></div><div class="gb-step-body"><p class="gb-step-desc">Use a análise da copy (chat "C&C - [Cliente]"). Se precisar fazer análise própria:</p><a class="gb-tool-link" href="https://www.facebook.com/ads/library" target="_blank"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Ad Library — Facebook</a><a class="gb-tool-link" href="https://app.adspy.com/ads" target="_blank" style="margin-left:6px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Ad Spy</a></div></div>
+
+      <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">04</div><span class="gb-step-title">Criação</span></div><div class="gb-step-body"><p class="gb-step-desc"><strong>Usando IA:</strong> Seedence do CapCut para gerar uma versão inicial e depois refinar.<br><strong>Manual:</strong> Seguindo as referências coletadas.</p><a class="gb-tool-link" href="https://www.capcut.com/" target="_blank"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>CapCut / Seedence</a>
+        <div class="gb-obs" style="margin-top:10px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><p class="gb-obs-text"><strong>Narração do vídeo:</strong> o cliente envia, ou a equipe MAK grava, ou geração via IA.</p></div>
+        <div class="gb-obs" style="margin-top:8px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><p class="gb-obs-text"><strong>B-rolls:</strong> devem ser didáticos e exemplificar o que o vídeo fala. Se o cliente fala "escovas macias alcançam mais regiões", coloque um b-roll mostrando isso. Use o Gemini Omni para gerar takes específicos quando necessário — seja o mais detalhista possível na solicitação.</p></div>
+        <div class="gb-obs" style="margin-top:8px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><p class="gb-obs-text"><strong>3 pontos cruciais (nessa ordem):</strong> 1. Objetivo do criativo · 2. Público · 3. Referências. Equilibre com a IDV do cliente.</p></div>
+      </div></div>
+
+      <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">05</div><span class="gb-step-title">Revisar</span></div><div class="gb-step-body"><p class="gb-step-desc">Se possível aguarde algumas horas e revise com olho fresco, ou revise na hora mesmo.</p></div></div>
+
+      <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">06</div><span class="gb-step-title">Enviar para aprovação</span></div><div class="gb-step-body"><p class="gb-step-desc">Envie para aprovação via ClickUp seguindo o naming padrão.</p>
+        <div class="naming-box" style="margin-top:10px"><div class="naming-title">Naming padrão MAK</div><div class="naming-row"><span class="naming-pill">CT01, CT02…</span><span class="naming-pill">AD01, AD02…</span><span class="naming-pill">ADCT01, ADCT02…</span></div></div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── POPUP: VÍDEOS CONTEÚDOS ── -->
+<div class="popup-overlay" id="popup-vidcont" onclick="closePopupOut(event,'popup-vidcont')">
+  <div class="popup">
+    <div class="popup-header">
+      <div class="popup-header-left">
+        <div class="popup-hicon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg></div>
+        <div><div class="popup-htitle">Edição de Vídeos — Conteúdos</div><div class="popup-hsub">5 etapas · Reels · Orgânico · Instagram</div></div>
+      </div>
+      <button class="popup-close" onclick="closePopup('popup-vidcont')">✕</button>
+    </div>
+    <div class="popup-body">
+      <div class="gb-rules-intro">
+        <div class="gb-rules-title">Regras Gerais</div>
+        <div class="gb-rules-item"><div class="gb-rules-dot"></div><span>Siga essas etapas SEMPRE. Reutilize análises já feitas pelo processo de copy.</span></div>
+        <div class="gb-rules-item"><div class="gb-rules-dot"></div><span>Use as IAs na conta da MAK: <strong>contato.makdrive@gmail.com</strong></span></div>
+      </div>
+      <div class="gb-divider"><div class="gb-divider-line"></div><span class="gb-divider-label">Etapas</span><div class="gb-divider-line"></div></div>
+
+      <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">01</div><span class="gb-step-title">Coleta do Briefing</span></div><div class="gb-step-body"><p class="gb-step-desc">Itens fundamentais no briefing do ClickUp:</p><div class="gb-list"><div class="gb-list-item"><div class="gb-list-dot"></div>Objetivo dos posts (no doc escrito como "direcionamento")</div><div class="gb-list-item"><div class="gb-list-dot"></div>Linha de comunicação e posicionamento</div><div class="gb-list-item"><div class="gb-list-dot"></div>Materiais brutos necessários (vídeos, fotos, etc…)</div></div></div></div>
+
+      <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">02</div><span class="gb-step-title">Análise de desempenho</span></div><div class="gb-step-body"><p class="gb-step-desc">Analise os posts em vídeo dos últimos 30 dias no Instagram. Busque padrões. Use a análise da copy — chat <strong>"C&C - [Nome do cliente]"</strong> no projeto "Copy Maker".</p></div></div>
+
+      <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">03</div><span class="gb-step-title">Criação</span></div><div class="gb-step-body"><p class="gb-step-desc"><strong>Narração:</strong> o cliente envia, a equipe MAK grava, ou geração via IA.</p>
+        <div class="gb-obs" style="margin-top:10px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><p class="gb-obs-text"><strong>B-rolls:</strong> apoio visual didático que exemplifica o que é falado. Use o Gemini Omni para gerar takes específicos — detalhe ao máximo o que precisa.</p></div>
+        <div class="gb-obs" style="margin-top:8px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><p class="gb-obs-text"><strong>3 pontos cruciais (nessa ordem):</strong> 1. Objetivo/direcionamento · 2. Público · 3. Estilo e comunicação do cliente. Equilibre com a IDV.</p></div>
+      </div></div>
+
+      <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">04</div><span class="gb-step-title">Revisar</span></div><div class="gb-step-body"><p class="gb-step-desc">Se possível aguarde algumas horas e revise com olho fresco, ou revise na hora mesmo.</p></div></div>
+
+      <div class="gb-step"><div class="gb-step-header"><div class="gb-step-num">05</div><span class="gb-step-title">Enviar para aprovação</span></div><div class="gb-step-body"><p class="gb-step-desc">Envie para aprovação via ClickUp seguindo o naming padrão.</p>
+        <div class="naming-box" style="margin-top:10px"><div class="naming-title">Naming padrão MAK</div><div class="naming-row"><span class="naming-pill">CT01, CT02…</span><span class="naming-pill">AD01, AD02…</span><span class="naming-pill">ADCT01, ADCT02…</span></div></div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── TOAST ── -->
+<div class="toast" id="toast">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+  Prompt copiado!
+</div>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+document.querySelectorAll('.scroll-scale,.scroll-bottom,.scroll-top,.scroll-left,.scroll-right').forEach(el=>{
+  ScrollTrigger.create({trigger:el,endTrigger:"body",start:"top 88%",toggleClass:"ativado"});
+});
+
+function toggleTheme(){
+  const h=document.documentElement;
+  const d=h.dataset.theme==='dark';
+  h.dataset.theme=d?'light':'dark';
+  document.getElementById('themeIcon').textContent=d?'🌙':'☀️';
+  document.getElementById('themeLabel').textContent=d?'Modo Escuro':'Modo Claro';
+}
+
+function setCategory(id,btn){
+  document.querySelectorAll('.cat-block').forEach(el=>el.classList.remove('visible'));
+  document.querySelectorAll('.filter-btn').forEach(el=>el.classList.remove('active'));
+  document.getElementById('cat-'+id).classList.add('visible');
+  btn.classList.add('active');
+  ScrollTrigger.refresh();
+}
+
+function openPopup(id){
+  const el=document.getElementById('popup-'+id);
+  if(!el)return;
+  el.classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closePopup(id){
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.classList.remove('open');
+  document.body.style.overflow='';
+}
+function closePopupOut(e,id){if(e.target===e.currentTarget)closePopup(id);}
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    document.querySelectorAll('.popup-overlay.open').forEach(el=>el.classList.remove('open'));
+    document.body.style.overflow='';
+  }
+});
+
+let toastTimer;
+function copyMsg(btn,text){
+  navigator.clipboard.writeText(text).then(()=>{
+    btn.classList.add('copied');
+    btn.innerHTML='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Copiado!';
+    showToast();
+    clearTimeout(btn._t);
+    btn._t=setTimeout(()=>{
+      btn.classList.remove('copied');
+      btn.innerHTML='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copiar';
+    },2500);
+  });
+}
+function showToast(){
+  const t=document.getElementById('toast');
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+window.addEventListener('load',()=>{
+  gsap.from('.hero-tag',{opacity:0,y:-20,filter:'blur(4px)',duration:.7,ease:'power3.out',delay:.1});
+  gsap.from('.hero-title',{opacity:0,y:30,filter:'blur(6px)',duration:.9,ease:'power3.out',delay:.25});
+  gsap.from('.hero-sub',{opacity:0,y:20,filter:'blur(4px)',duration:.8,ease:'power3.out',delay:.45});
+});
+</script>
+</body>
+</html>
